@@ -1,0 +1,36 @@
+{
+  "name": "the-vault-algorithm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Four-reel anonymous slot machine MVP",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/main.js",
+    "start:dev": "nest start --watch",
+    "migration:up": "npm run build && mikro-orm migration:up --config dist/mikro-orm.config.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.24",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@mikro-orm/cli": "^6.6.17",
+    "@mikro-orm/core": "^6.6.17",
+    "@mikro-orm/migrations": "^6.6.17",
+    "@mikro-orm/nestjs": "^6.1.2",
+    "@mikro-orm/postgresql": "^6.6.17",
+    "@nestjs/common": "^11.2.7",
+    "@nestjs/core": "^11.2.7",
+    "@nestjs/platform-express": "^11.2.7",
+    "@nestjs/swagger": "^11.4.7",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.4",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  }
+}
