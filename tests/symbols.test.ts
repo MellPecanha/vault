@@ -22,12 +22,7 @@ describe('reel generation', () => {
 
   it('changes only the selected reel during a Bonus Spin', () => {
     const reels: Reels = ['coin', 'clover', 'snake', 'crown'];
-    expect(bonusSpin(reels, 2, new SequenceRandom(['coin-bag']))).toEqual([
-      'coin',
-      'clover',
-      'coin-bag',
-      'crown',
-    ]);
+    expect(bonusSpin(reels, 2, new SequenceRandom(['coin-bag']))).toEqual(['coin', 'clover', 'coin-bag', 'crown']);
   });
 
   it('rejects an invalid reel index', () => {

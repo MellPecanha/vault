@@ -57,8 +57,7 @@ export function evaluateSpin(reels: Reels): SpinEvaluation {
     basePrize,
     multiplier,
     prize,
-    outcome:
-      snakes > 0 ? 'snake-protected' : prize > 0 ? 'win' : 'loss',
+    outcome: snakes > 0 ? 'snake-protected' : prize > 0 ? 'win' : 'loss',
     counts,
   };
 }

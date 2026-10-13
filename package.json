@@ -8,18 +8,26 @@
     "start": "node dist/src/main.js",
     "start:dev": "nest start --watch",
     "migration:up": "npm run build && mikro-orm migration:up --config dist/mikro-orm.config.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "test:e2e": "npm run build && vitest run --config vitest.e2e.config.ts",
     "test:watch": "vitest"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@nestjs/cli": "^11.0.24",
     "@nestjs/testing": "^11.2.7",
     "@types/node": "^22.10.2",
     "@types/pg": "^8.23.1",
     "@types/supertest": "^6.0.3",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.10",
     "supertest": "^7.3.1",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.71.2",
     "vitest": "^2.1.8"
   },
   "dependencies": {

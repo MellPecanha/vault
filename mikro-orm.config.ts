@@ -7,5 +7,8 @@ export default defineConfig({
   clientUrl: process.env.DATABASE_URL ?? 'postgresql://vault:vault@localhost:5432/vault',
   entities: [PlayerEntity, GameResultEntity],
   extensions: [Migrator],
-  migrations: { path: 'dist/src/infrastructure/persistence/migrations', pathTs: 'src/infrastructure/persistence/migrations' },
+  migrations: {
+    path: 'dist/src/infrastructure/persistence/migrations',
+    pathTs: 'src/infrastructure/persistence/migrations',
+  },
 });

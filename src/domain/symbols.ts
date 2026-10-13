@@ -1,14 +1,6 @@
 export const REEL_COUNT = 4;
 
-export const SYMBOLS = [
-  'coin',
-  'clover',
-  'snake',
-  'trap',
-  'crown',
-  'coin-bag',
-  'multiplier-2x',
-] as const;
+export const SYMBOLS = ['coin', 'clover', 'snake', 'trap', 'crown', 'coin-bag', 'multiplier-2x'] as const;
 
 export type Symbol = (typeof SYMBOLS)[number];
 export type Reels = readonly [Symbol, Symbol, Symbol, Symbol];
@@ -32,19 +24,10 @@ function nextValidSymbol(random: RandomSource): Symbol {
 }
 
 export function spinAll(random: RandomSource): Reels {
-  return [
-    nextValidSymbol(random),
-    nextValidSymbol(random),
-    nextValidSymbol(random),
-    nextValidSymbol(random),
-  ];
+  return [nextValidSymbol(random), nextValidSymbol(random), nextValidSymbol(random), nextValidSymbol(random)];
 }
 
-export function bonusSpin(
-  reels: Reels,
-  reelIndex: number,
-  random: RandomSource,
-): Reels {
+export function bonusSpin(reels: Reels, reelIndex: number, random: RandomSource): Reels {
   if (!Number.isInteger(reelIndex) || reelIndex < 0 || reelIndex >= REEL_COUNT) {
     throw new RangeError(`Reel index must be between 0 and ${REEL_COUNT - 1}.`);
   }
