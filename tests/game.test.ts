@@ -3,6 +3,7 @@ import {
   GameService,
   InsufficientCoinsError,
   InvalidPlayerIdentifierError,
+  PendingPrizeMustBeSettledError,
   PrizeAlreadySettledError,
   type GameRepository,
   type GameResult,
@@ -66,6 +67,9 @@ class InMemoryRepository implements GameRepository {
     const result = this.results.get(resultId);
     return result?.playerId === playerId ? result : null;
   }
+  async findPendingResultForPlayer(playerId: string): Promise<GameResult | null> {
+    return [...this.results.values()].find((result) => result.playerId === playerId && result.settledAt === null) ?? null;
+  }
   async saveResult(result: GameResult): Promise<void> { this.results.set(result.id, result); }
   async listResultsForPlayer(playerId: string, limit: number, offset: number): Promise<GameResult[]> {
     return [...this.results.values()].filter((result) => result.playerId === playerId).slice(offset, offset + limit);
@@ -95,6 +99,15 @@ describe('GameService', () => {
 
     expect(second.player.coinBalance).toBe(107); // 100 - 1 + 9 - 1
     expect(first.result.settledAt).toBeNull();
+  });
+
+  it('requires the current pending prize when starting another regular spin', async () => {
+    const { service, repository } = game(['clover', 'trap', 'trap', 'trap']);
+    await service.regularSpin(PLAYER_ID);
+
+    await expect(service.regularSpin(PLAYER_ID)).rejects.toBeInstanceOf(PendingPrizeMustBeSettledError);
+    expect(repository.players.get(PLAYER_ID)?.coinBalance).toBe(99);
+    expect(repository.results).toHaveLength(1);
   });
 
   it('charges and re-evaluates only the selected reel on a Bonus Spin', async () => {

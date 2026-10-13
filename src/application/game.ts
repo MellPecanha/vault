@@ -29,6 +29,7 @@ export interface GameRepository {
   savePlayer(player: Player): Promise<void>;
   createResult(result: Omit<GameResult, 'id'>): Promise<GameResult>;
   findResultForPlayer(playerId: string, resultId: string): Promise<GameResult | null>;
+  findPendingResultForPlayer(playerId: string): Promise<GameResult | null>;
   saveResult(result: GameResult): Promise<void>;
   listResultsForPlayer(playerId: string, limit: number, offset: number): Promise<GameResult[]>;
 }
@@ -37,6 +38,7 @@ export class InvalidPlayerIdentifierError extends Error {}
 export class InsufficientCoinsError extends Error {}
 export class ResultNotFoundError extends Error {}
 export class PrizeAlreadySettledError extends Error {}
+export class PendingPrizeMustBeSettledError extends Error {}
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -62,9 +64,14 @@ export class GameService {
     assertAnonymousPlayerId(publicId);
     return this.repository.transactional(async (repository) => {
       const player = await this.resolvePlayer(repository, publicId);
+      const pendingResult = await repository.findPendingResultForPlayer(player.id);
 
-      if (pendingResultId !== undefined) {
-        await this.settlePendingPrize(repository, player, pendingResultId);
+      if (pendingResult !== null && pendingResultId !== pendingResult.id) {
+        throw new PendingPrizeMustBeSettledError('The current pending prize must be settled before starting another spin.');
+      }
+
+      if (pendingResult !== null) {
+        await this.settlePendingPrize(repository, player, pendingResult.id);
       }
 
       this.chargeSpin(player);

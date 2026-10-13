@@ -3,10 +3,11 @@ import {
   InsufficientCoinsError,
   InvalidPlayerIdentifierError,
   PrizeAlreadySettledError,
+  PendingPrizeMustBeSettledError,
   ResultNotFoundError,
 } from '../../application/game';
 
-@Catch(InvalidPlayerIdentifierError, InsufficientCoinsError, ResultNotFoundError, PrizeAlreadySettledError)
+@Catch(InvalidPlayerIdentifierError, InsufficientCoinsError, ResultNotFoundError, PrizeAlreadySettledError, PendingPrizeMustBeSettledError)
 export class GameExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<{ status(code: number): { json(body: unknown): void } }>();
@@ -14,7 +15,7 @@ export class GameExceptionFilter implements ExceptionFilter {
       ? HttpStatus.BAD_REQUEST
       : exception instanceof ResultNotFoundError
         ? HttpStatus.NOT_FOUND
-        : exception instanceof PrizeAlreadySettledError
+        : exception instanceof PrizeAlreadySettledError || exception instanceof PendingPrizeMustBeSettledError
           ? HttpStatus.CONFLICT
           : HttpStatus.UNPROCESSABLE_ENTITY;
 

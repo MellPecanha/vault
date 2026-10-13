@@ -55,6 +55,15 @@ export class MikroGameRepository implements GameRepository {
     return entity === null ? null : this.toResult(entity);
   }
 
+  async findPendingResultForPlayer(playerId: string): Promise<GameResult | null> {
+    const entity = await this.em.findOne(
+      GameResultEntity,
+      { player: { id: playerId }, settledAt: null },
+      { orderBy: { createdAt: 'desc' }, populate: ['player'] },
+    );
+    return entity === null ? null : this.toResult(entity);
+  }
+
   async saveResult(result: GameResult): Promise<void> {
     const entity = await this.em.findOneOrFail(GameResultEntity, { id: result.id });
     entity.reels = result.reels;
