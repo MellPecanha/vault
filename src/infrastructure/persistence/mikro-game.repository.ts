@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/postgresql';
+import { EntityManager, LockMode } from '@mikro-orm/postgresql';
+import { randomUUID } from 'node:crypto';
 import type { GameRepository, GameResult, Player } from '../../application/game';
 import { GameResultEntity } from './game-result.entity';
 import { PlayerEntity } from './player.entity';
@@ -12,27 +13,19 @@ export class MikroGameRepository implements GameRepository {
     return this.em.transactional((transactionalEm) => work(new MikroGameRepository(transactionalEm)));
   }
 
-  async findOrCreatePlayer(publicId: string): Promise<Player> {
-    let entity = await this.em.findOne(PlayerEntity, { publicId });
-    if (entity === null) {
-      const timestamp = new Date();
-      entity = this.em.create(PlayerEntity, {
-        publicId,
-        coinBalance: 100,
-        personalRecord: 0,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      });
-      try {
-        await this.em.persistAndFlush(entity);
-      } catch (error) {
-        // A concurrent first request can win the unique public_id constraint.
-        // Reloading makes creation idempotent while preserving unrelated errors.
-        this.em.clear();
-        entity = await this.em.findOne(PlayerEntity, { publicId });
-        if (entity === null) throw error;
-      }
-    }
+  async findOrCreatePlayer(publicId: string, lockForUpdate = false): Promise<Player> {
+    const timestamp = new Date();
+    await this.em
+      .getConnection()
+      .execute(
+        'insert into players (id, public_id, coin_balance, personal_record, created_at, updated_at) values (?, ?, ?, ?, ?, ?) on conflict (public_id) do nothing',
+        [randomUUID(), publicId, 100, 0, timestamp, timestamp],
+      );
+    const entity = await this.em.findOneOrFail(
+      PlayerEntity,
+      { publicId },
+      lockForUpdate ? { lockMode: LockMode.PESSIMISTIC_WRITE } : {},
+    );
     return this.toPlayer(entity);
   }
 
@@ -51,7 +44,11 @@ export class MikroGameRepository implements GameRepository {
   }
 
   async findResultForPlayer(playerId: string, resultId: string): Promise<GameResult | null> {
-    const entity = await this.em.findOne(GameResultEntity, { id: resultId, player: { id: playerId } }, { populate: ['player'] });
+    const entity = await this.em.findOne(
+      GameResultEntity,
+      { id: resultId, player: { id: playerId } },
+      { populate: ['player'], lockMode: LockMode.PESSIMISTIC_WRITE },
+    );
     return entity === null ? null : this.toResult(entity);
   }
 
@@ -59,7 +56,7 @@ export class MikroGameRepository implements GameRepository {
     const entity = await this.em.findOne(
       GameResultEntity,
       { player: { id: playerId }, settledAt: null },
-      { orderBy: { createdAt: 'desc' }, populate: ['player'] },
+      { orderBy: { createdAt: 'desc' }, populate: ['player'], lockMode: LockMode.PESSIMISTIC_WRITE },
     );
     return entity === null ? null : this.toResult(entity);
   }
@@ -75,12 +72,25 @@ export class MikroGameRepository implements GameRepository {
   }
 
   async listResultsForPlayer(playerId: string, limit: number, offset: number): Promise<GameResult[]> {
-    const entities = await this.em.find(GameResultEntity, { player: { id: playerId } }, { orderBy: { createdAt: 'desc' }, limit, offset });
+    const entities = await this.em.find(
+      GameResultEntity,
+      { player: { id: playerId } },
+      { orderBy: { createdAt: 'desc' }, limit, offset },
+    );
     return entities.map((entity) => this.toResult(entity));
   }
 
+  async countResultsForPlayer(playerId: string): Promise<number> {
+    return this.em.count(GameResultEntity, { player: { id: playerId } });
+  }
+
   private toPlayer(entity: PlayerEntity): Player {
-    return { id: entity.id, publicId: entity.publicId, coinBalance: entity.coinBalance, personalRecord: entity.personalRecord };
+    return {
+      id: entity.id,
+      publicId: entity.publicId,
+      coinBalance: entity.coinBalance,
+      personalRecord: entity.personalRecord,
+    };
   }
 
   private toResult(entity: GameResultEntity): GameResult {

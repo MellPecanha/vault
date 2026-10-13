@@ -68,17 +68,27 @@ class InMemoryRepository implements GameRepository {
     return result?.playerId === playerId ? result : null;
   }
   async findPendingResultForPlayer(playerId: string): Promise<GameResult | null> {
-    return [...this.results.values()].find((result) => result.playerId === playerId && result.settledAt === null) ?? null;
+    return (
+      [...this.results.values()].find((result) => result.playerId === playerId && result.settledAt === null) ?? null
+    );
   }
-  async saveResult(result: GameResult): Promise<void> { this.results.set(result.id, result); }
+  async saveResult(result: GameResult): Promise<void> {
+    this.results.set(result.id, result);
+  }
   async listResultsForPlayer(playerId: string, limit: number, offset: number): Promise<GameResult[]> {
     return [...this.results.values()].filter((result) => result.playerId === playerId).slice(offset, offset + limit);
+  }
+  async countResultsForPlayer(playerId: string): Promise<number> {
+    return [...this.results.values()].filter((result) => result.playerId === playerId).length;
   }
 }
 
 function game(symbols: Symbol[]): { service: GameService; repository: InMemoryRepository } {
   const repository = new InMemoryRepository();
-  return { service: new GameService(repository, new SequenceRandom(symbols), () => new Date('2026-01-01T00:00:00.000Z')), repository };
+  return {
+    service: new GameService(repository, new SequenceRandom(symbols), () => new Date('2026-01-01T00:00:00.000Z')),
+    repository,
+  };
 }
 
 describe('GameService', () => {
@@ -87,7 +97,11 @@ describe('GameService', () => {
     const response = await service.regularSpin(PLAYER_ID);
 
     expect(response.player).toEqual({ publicId: PLAYER_ID, coinBalance: 99, personalRecord: 5 });
-    expect(response.result).toMatchObject({ reels: ['coin', 'coin', 'coin', 'trap'], pendingPrize: 5, settledAt: null });
+    expect(response.result).toMatchObject({
+      reels: ['coin', 'coin', 'coin', 'trap'],
+      pendingPrize: 5,
+      settledAt: null,
+    });
     await service.redeemPrize(PLAYER_ID, response.result.id);
     expect(repository.players).toHaveLength(1);
   });
@@ -116,7 +130,11 @@ describe('GameService', () => {
     const bonus = await service.bonusSpin(PLAYER_ID, first.result.id, 2);
 
     expect(bonus.player.coinBalance).toBe(98);
-    expect(bonus.result).toMatchObject({ reels: ['snake', 'trap', 'clover', 'trap'], pendingPrize: 12, settledAt: null });
+    expect(bonus.result).toMatchObject({
+      reels: ['snake', 'trap', 'clover', 'trap'],
+      pendingPrize: 12,
+      settledAt: null,
+    });
   });
 
   it('does not settle a prize twice', async () => {

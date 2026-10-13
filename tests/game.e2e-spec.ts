@@ -44,7 +44,7 @@ describe('Game API (e2e)', () => {
     const { createApp } = await import('../src/main');
     app = await createApp();
     orm = app.get(MikroORM);
-    await orm.getSchemaGenerator().createSchema();
+    await orm.getMigrator().up();
     await app.init();
   });
 
@@ -102,6 +102,20 @@ describe('Game API (e2e)', () => {
       .expect(409);
   });
 
+  it('serializes concurrent first spins for the same anonymous player', async () => {
+    const responses = await Promise.all([
+      request(app.getHttpServer()).post('/v1/spins').set('x-anonymous-player-id', FIRST_PLAYER_ID).send({}),
+      request(app.getHttpServer()).post('/v1/spins').set('x-anonymous-player-id', FIRST_PLAYER_ID).send({}),
+    ]);
+
+    expect(responses.map((response) => response.status).sort()).toEqual([201, 409]);
+    const history = await request(app.getHttpServer())
+      .get('/v1/history')
+      .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+      .expect(200);
+    expect(history.body).toMatchObject({ pagination: { total: 1 } });
+  });
+
   it('scopes history and result mutations to the resolved player', async () => {
     const spin = await request(app.getHttpServer())
       .post('/v1/spins')
@@ -113,11 +127,37 @@ describe('Game API (e2e)', () => {
       .get('/v1/history')
       .set('x-anonymous-player-id', SECOND_PLAYER_ID)
       .expect(200)
-      .expect([]);
+      .expect({ items: [], pagination: { total: 0, limit: 20, offset: 0 } });
 
     await request(app.getHttpServer())
       .post(`/v1/results/${spin.body.result.id}/redeem`)
       .set('x-anonymous-player-id', SECOND_PLAYER_ID)
       .expect(404);
+  });
+
+  it('validates history pagination and returns pagination metadata', async () => {
+    const spin = await request(app.getHttpServer())
+      .post('/v1/spins')
+      .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+      .send({})
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post(`/v1/results/${spin.body.result.id}/redeem`)
+      .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+      .expect(200);
+
+    const history = await request(app.getHttpServer())
+      .get('/v1/history?limit=1&offset=0')
+      .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+      .expect(200);
+
+    expect(history.body).toMatchObject({ pagination: { total: 1, limit: 1, offset: 0 } });
+    expect(history.body.items).toHaveLength(1);
+
+    await request(app.getHttpServer())
+      .get('/v1/history?limit=51')
+      .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+      .expect(400);
   });
 });

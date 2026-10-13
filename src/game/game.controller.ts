@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Headers, HttpCode, Inject, Param, ParseIntPipe, Post, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Param, Post, Query, ValidationPipe } from '@nestjs/common';
 import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
-import { GameService, type GameResult, type SpinResponse } from '../application/game';
+import { GameService, type GameResult, type HistoryPage, type SpinResponse } from '../application/game';
 
 class RegularSpinDto {
   @IsOptional()
@@ -19,26 +20,43 @@ class BonusSpinDto {
 
 class HistoryQueryDto {
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(50)
   limit = 20;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   offset = 0;
 }
 
 @ApiTags('game')
-@ApiHeader({ name: 'x-anonymous-player-id', required: true, description: 'Browser-generated UUID used only to scope anonymous data.' })
+@ApiHeader({
+  name: 'x-anonymous-player-id',
+  required: true,
+  description: 'Browser-generated UUID used only to scope anonymous data.',
+})
 @Controller('v1')
 export class GameController {
   constructor(@Inject(GameService) private readonly game: GameService) {}
 
   @Post('spins')
   @ApiOperation({ summary: 'Start a server-generated regular spin.' })
-  regularSpin(@Headers('x-anonymous-player-id') playerId: string, @Body() body: RegularSpinDto) {
+  regularSpin(
+    @Headers('x-anonymous-player-id') playerId: string,
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        expectedType: RegularSpinDto,
+      }),
+    )
+    body: RegularSpinDto,
+  ) {
     return this.game.regularSpin(playerId, body.pendingResultId).then((response) => this.toResponse(response));
   }
 
@@ -47,7 +65,10 @@ export class GameController {
   bonusSpin(
     @Headers('x-anonymous-player-id') playerId: string,
     @Param('resultId') resultId: string,
-    @Body(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true, expectedType: BonusSpinDto })) body: BonusSpinDto,
+    @Body(
+      new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true, expectedType: BonusSpinDto }),
+    )
+    body: BonusSpinDto,
   ) {
     return this.game.bonusSpin(playerId, resultId, body.reelIndex).then((response) => this.toResponse(response));
   }
@@ -63,11 +84,17 @@ export class GameController {
   @ApiOperation({ summary: 'List only the resolved anonymous player history.' })
   history(
     @Headers('x-anonymous-player-id') playerId: string,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20,
-    @Query('offset', new ParseIntPipe({ optional: true })) offset = 0,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        expectedType: HistoryQueryDto,
+      }),
+    )
+    query: HistoryQueryDto,
   ) {
-    return this.game.history(playerId, Math.min(Math.max(limit, 1), 50), Math.max(offset, 0))
-      .then((results) => results.map((result) => this.toPublicResult(result)));
+    return this.game.history(playerId, query.limit, query.offset).then((page) => this.toHistoryResponse(page));
   }
 
   private toResponse(response: SpinResponse) {
@@ -75,7 +102,21 @@ export class GameController {
   }
 
   private toPublicResult(result: GameResult) {
-    const { playerId: _, ...publicResult } = result;
-    return publicResult;
+    return {
+      id: result.id,
+      reels: result.reels,
+      evaluation: result.evaluation,
+      pendingPrize: result.pendingPrize,
+      settledAt: result.settledAt,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
+  }
+
+  private toHistoryResponse(page: HistoryPage) {
+    return {
+      items: page.results.map((result) => this.toPublicResult(result)),
+      pagination: { total: page.total, limit: page.limit, offset: page.offset },
+    };
   }
 }
