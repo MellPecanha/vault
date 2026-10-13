@@ -26,6 +26,25 @@ class InMemoryRepository implements GameRepository {
   readonly players = new Map<string, Player>();
   readonly results = new Map<string, GameResult>();
   private resultNumber = 0;
+  transactions = 0;
+  failOnSavePlayer = false;
+
+  async transactional<T>(work: (repository: GameRepository) => Promise<T>): Promise<T> {
+    this.transactions += 1;
+    const players = new Map([...this.players].map(([key, player]) => [key, { ...player }]));
+    const results = new Map([...this.results].map(([key, result]) => [key, { ...result }]));
+    const resultNumber = this.resultNumber;
+    try {
+      return await work(this);
+    } catch (error) {
+      this.players.clear();
+      this.results.clear();
+      players.forEach((player, key) => this.players.set(key, player));
+      results.forEach((result, key) => this.results.set(key, result));
+      this.resultNumber = resultNumber;
+      throw error;
+    }
+  }
 
   async findOrCreatePlayer(publicId: string): Promise<Player> {
     const existing = this.players.get(publicId);
@@ -34,7 +53,10 @@ class InMemoryRepository implements GameRepository {
     this.players.set(publicId, player);
     return player;
   }
-  async savePlayer(player: Player): Promise<void> { this.players.set(player.publicId, player); }
+  async savePlayer(player: Player): Promise<void> {
+    if (this.failOnSavePlayer) throw new Error('Player persistence failed.');
+    this.players.set(player.publicId, player);
+  }
   async createResult(result: Omit<GameResult, 'id'>): Promise<GameResult> {
     const created = { ...result, id: `result-${++this.resultNumber}` };
     this.results.set(created.id, created);
@@ -96,5 +118,15 @@ describe('GameService', () => {
     await expect(service.regularSpin('not-a-uuid')).rejects.toBeInstanceOf(InvalidPlayerIdentifierError);
     repository.players.set(PLAYER_ID, { id: 'player-1', publicId: PLAYER_ID, coinBalance: 0, personalRecord: 0 });
     await expect(service.regularSpin(PLAYER_ID)).rejects.toBeInstanceOf(InsufficientCoinsError);
+  });
+
+  it('rolls back a regular spin when player persistence fails', async () => {
+    const { service, repository } = game(['coin', 'coin', 'coin', 'trap']);
+    repository.failOnSavePlayer = true;
+
+    await expect(service.regularSpin(PLAYER_ID)).rejects.toThrow('Player persistence failed.');
+    expect(repository.players).toHaveLength(0);
+    expect(repository.results).toHaveLength(0);
+    expect(repository.transactions).toBe(1);
   });
 });

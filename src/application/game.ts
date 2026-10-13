@@ -24,6 +24,7 @@ export interface GameResult {
 
 /** Persistence boundary implemented later by the MikroORM adapter. */
 export interface GameRepository {
+  transactional<T>(work: (repository: GameRepository) => Promise<T>): Promise<T>;
   findOrCreatePlayer(publicId: string): Promise<Player>;
   savePlayer(player: Player): Promise<void>;
   createResult(result: Omit<GameResult, 'id'>): Promise<GameResult>;
@@ -58,54 +59,63 @@ export class GameService {
   ) {}
 
   async regularSpin(publicId: string, pendingResultId?: string): Promise<SpinResponse> {
-    const player = await this.resolvePlayer(publicId);
+    assertAnonymousPlayerId(publicId);
+    return this.repository.transactional(async (repository) => {
+      const player = await this.resolvePlayer(repository, publicId);
 
-    if (pendingResultId !== undefined) {
-      await this.settlePendingPrize(player, pendingResultId);
-    }
+      if (pendingResultId !== undefined) {
+        await this.settlePendingPrize(repository, player, pendingResultId);
+      }
 
-    this.chargeSpin(player);
-    const result = await this.createPendingResult(player, spinAll(this.random));
-    await this.repository.savePlayer(player);
-    return { player: this.toPlayerResponse(player), result };
+      this.chargeSpin(player);
+      const result = await this.createPendingResult(repository, player, spinAll(this.random));
+      await repository.savePlayer(player);
+      return { player: this.toPlayerResponse(player), result };
+    });
   }
 
   async bonusSpin(publicId: string, resultId: string, reelIndex: number): Promise<SpinResponse> {
-    const player = await this.resolvePlayer(publicId);
-    const result = await this.requirePendingResult(player, resultId);
+    assertAnonymousPlayerId(publicId);
+    return this.repository.transactional(async (repository) => {
+      const player = await this.resolvePlayer(repository, publicId);
+      const result = await this.requirePendingResult(repository, player, resultId);
 
-    this.chargeSpin(player);
-    const reels = bonusSpin(result.reels, reelIndex, this.random);
-    const evaluation = evaluateSpin(reels);
-    const updatedResult: GameResult = {
-      ...result,
-      reels,
-      evaluation,
-      pendingPrize: evaluation.prize,
-      updatedAt: this.now(),
-    };
-    player.personalRecord = Math.max(player.personalRecord, evaluation.prize);
+      this.chargeSpin(player);
+      const reels = bonusSpin(result.reels, reelIndex, this.random);
+      const evaluation = evaluateSpin(reels);
+      const updatedResult: GameResult = {
+        ...result,
+        reels,
+        evaluation,
+        pendingPrize: evaluation.prize,
+        updatedAt: this.now(),
+      };
+      player.personalRecord = Math.max(player.personalRecord, evaluation.prize);
 
-    await this.repository.saveResult(updatedResult);
-    await this.repository.savePlayer(player);
-    return { player: this.toPlayerResponse(player), result: updatedResult };
+      await repository.saveResult(updatedResult);
+      await repository.savePlayer(player);
+      return { player: this.toPlayerResponse(player), result: updatedResult };
+    });
   }
 
   async redeemPrize(publicId: string, resultId: string): Promise<SpinResponse> {
-    const player = await this.resolvePlayer(publicId);
-    const result = await this.settlePendingPrize(player, resultId);
-    await this.repository.savePlayer(player);
-    return { player: this.toPlayerResponse(player), result };
+    assertAnonymousPlayerId(publicId);
+    return this.repository.transactional(async (repository) => {
+      const player = await this.resolvePlayer(repository, publicId);
+      const result = await this.settlePendingPrize(repository, player, resultId);
+      await repository.savePlayer(player);
+      return { player: this.toPlayerResponse(player), result };
+    });
   }
 
   async history(publicId: string, limit: number, offset: number): Promise<GameResult[]> {
-    const player = await this.resolvePlayer(publicId);
+    assertAnonymousPlayerId(publicId);
+    const player = await this.resolvePlayer(this.repository, publicId);
     return this.repository.listResultsForPlayer(player.id, limit, offset);
   }
 
-  private async resolvePlayer(publicId: string): Promise<Player> {
-    assertAnonymousPlayerId(publicId);
-    return this.repository.findOrCreatePlayer(publicId);
+  private async resolvePlayer(repository: GameRepository, publicId: string): Promise<Player> {
+    return repository.findOrCreatePlayer(publicId);
   }
 
   private chargeSpin(player: Player): void {
@@ -115,11 +125,11 @@ export class GameService {
     player.coinBalance -= SPIN_COST;
   }
 
-  private async createPendingResult(player: Player, reels: Reels): Promise<GameResult> {
+  private async createPendingResult(repository: GameRepository, player: Player, reels: Reels): Promise<GameResult> {
     const evaluation = evaluateSpin(reels);
     player.personalRecord = Math.max(player.personalRecord, evaluation.prize);
     const timestamp = this.now();
-    return this.repository.createResult({
+    return repository.createResult({
       playerId: player.id,
       reels,
       evaluation,
@@ -130,22 +140,22 @@ export class GameService {
     });
   }
 
-  private async requirePendingResult(player: Player, resultId: string): Promise<GameResult> {
-    const result = await this.repository.findResultForPlayer(player.id, resultId);
+  private async requirePendingResult(repository: GameRepository, player: Player, resultId: string): Promise<GameResult> {
+    const result = await repository.findResultForPlayer(player.id, resultId);
     if (result === null) throw new ResultNotFoundError('Game result was not found for this player.');
     if (result.settledAt !== null) throw new PrizeAlreadySettledError('Prize has already been settled.');
     return result;
   }
 
-  private async settlePendingPrize(player: Player, resultId: string): Promise<GameResult> {
-    const result = await this.requirePendingResult(player, resultId);
+  private async settlePendingPrize(repository: GameRepository, player: Player, resultId: string): Promise<GameResult> {
+    const result = await this.requirePendingResult(repository, player, resultId);
     player.coinBalance += result.pendingPrize;
     const settledResult: GameResult = {
       ...result,
       settledAt: this.now(),
       updatedAt: this.now(),
     };
-    await this.repository.saveResult(settledResult);
+    await repository.saveResult(settledResult);
     return settledResult;
   }
 

@@ -8,6 +8,10 @@ import { PlayerEntity } from './player.entity';
 export class MikroGameRepository implements GameRepository {
   constructor(private readonly em: EntityManager) {}
 
+  async transactional<T>(work: (repository: GameRepository) => Promise<T>): Promise<T> {
+    return this.em.transactional((transactionalEm) => work(new MikroGameRepository(transactionalEm)));
+  }
+
   async findOrCreatePlayer(publicId: string): Promise<Player> {
     let entity = await this.em.findOne(PlayerEntity, { publicId });
     if (entity === null) {
