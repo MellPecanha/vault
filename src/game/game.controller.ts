@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, HttpCode, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Param, ParseIntPipe, Post, Query, ValidationPipe } from '@nestjs/common';
 import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 import { GameService, type GameResult, type SpinResponse } from '../application/game';
@@ -34,7 +34,7 @@ class HistoryQueryDto {
 @ApiHeader({ name: 'x-anonymous-player-id', required: true, description: 'Browser-generated UUID used only to scope anonymous data.' })
 @Controller('v1')
 export class GameController {
-  constructor(private readonly game: GameService) {}
+  constructor(@Inject(GameService) private readonly game: GameService) {}
 
   @Post('spins')
   @ApiOperation({ summary: 'Start a server-generated regular spin.' })
@@ -47,7 +47,7 @@ export class GameController {
   bonusSpin(
     @Headers('x-anonymous-player-id') playerId: string,
     @Param('resultId') resultId: string,
-    @Body() body: BonusSpinDto,
+    @Body(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true, expectedType: BonusSpinDto })) body: BonusSpinDto,
   ) {
     return this.game.bonusSpin(playerId, resultId, body.reelIndex).then((response) => this.toResponse(response));
   }

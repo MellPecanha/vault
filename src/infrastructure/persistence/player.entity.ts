@@ -4,21 +4,21 @@ import { randomUUID } from 'node:crypto';
 @Entity({ tableName: 'players' })
 @Unique({ properties: ['publicId'] })
 export class PlayerEntity {
-  @PrimaryKey()
+  @PrimaryKey({ type: 'string' })
   id: string = randomUUID();
 
-  @Property({ fieldName: 'public_id', length: 36 })
+  @Property({ type: 'string', fieldName: 'public_id', length: 36 })
   publicId!: string;
 
-  @Property({ fieldName: 'coin_balance', default: 100 })
+  @Property({ type: 'number', fieldName: 'coin_balance', default: 100 })
   coinBalance = 100;
 
-  @Property({ fieldName: 'personal_record', default: 0 })
+  @Property({ type: 'number', fieldName: 'personal_record', default: 0 })
   personalRecord = 0;
 
-  @Property({ fieldName: 'created_at' })
+  @Property({ type: 'datetime', fieldName: 'created_at', columnType: 'timestamptz' })
   createdAt = new Date();
 
-  @Property({ fieldName: 'updated_at', onUpdate: () => new Date() })
+  @Property({ type: 'datetime', fieldName: 'updated_at', columnType: 'timestamptz', onUpdate: () => new Date() })
   updatedAt = new Date();
 }

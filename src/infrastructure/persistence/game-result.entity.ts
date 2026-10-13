@@ -7,7 +7,7 @@ import { PlayerEntity } from './player.entity';
 @Entity({ tableName: 'game_results' })
 @Index({ properties: ['player', 'createdAt'] })
 export class GameResultEntity {
-  @PrimaryKey()
+  @PrimaryKey({ type: 'string' })
   id: string = randomUUID();
 
   @ManyToOne(() => PlayerEntity, { deleteRule: 'cascade', fieldName: 'player_id' })
@@ -19,15 +19,15 @@ export class GameResultEntity {
   @Property({ type: JsonType, columnType: 'jsonb' })
   evaluation!: SpinEvaluation;
 
-  @Property({ fieldName: 'pending_prize' })
+  @Property({ type: 'number', fieldName: 'pending_prize' })
   pendingPrize!: number;
 
-  @Property({ fieldName: 'settled_at', nullable: true })
+  @Property({ type: 'datetime', fieldName: 'settled_at', columnType: 'timestamptz', nullable: true })
   settledAt: Date | null = null;
 
-  @Property({ fieldName: 'created_at' })
+  @Property({ type: 'datetime', fieldName: 'created_at', columnType: 'timestamptz' })
   createdAt = new Date();
 
-  @Property({ fieldName: 'updated_at', onUpdate: () => new Date() })
+  @Property({ type: 'datetime', fieldName: 'updated_at', columnType: 'timestamptz', onUpdate: () => new Date() })
   updatedAt = new Date();
 }
