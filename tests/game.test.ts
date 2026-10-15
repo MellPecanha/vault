@@ -96,22 +96,22 @@ describe('GameService', () => {
     const { service, repository } = game(['coin', 'coin', 'coin', 'trap']);
     const response = await service.regularSpin(PLAYER_ID);
 
-    expect(response.player).toEqual({ publicId: PLAYER_ID, coinBalance: 99, personalRecord: 5 });
+    expect(response.player).toEqual({ publicId: PLAYER_ID, coinBalance: 99, personalRecord: 3 });
     expect(response.result).toMatchObject({
       reels: ['coin', 'coin', 'coin', 'trap'],
-      pendingPrize: 5,
+      pendingPrize: 3,
       settledAt: null,
     });
     await service.redeemPrize(PLAYER_ID, response.result.id);
     expect(repository.players).toHaveLength(1);
   });
 
-  it('settles a pending prize before a requested new regular spin', async () => {
+  it('settles the current pending prize before a requested new regular spin', async () => {
     const { service } = game(['clover', 'trap', 'trap', 'trap', 'trap', 'trap', 'trap', 'trap']);
     const first = await service.regularSpin(PLAYER_ID);
     const second = await service.regularSpin(PLAYER_ID, first.result.id);
 
-    expect(second.player.coinBalance).toBe(107); // 100 - 1 + 9 - 1
+    expect(second.player.coinBalance).toBe(108); // 100 - 1 + 10 - 1
     expect(first.result.settledAt).toBeNull();
   });
 
@@ -132,7 +132,7 @@ describe('GameService', () => {
     expect(bonus.player.coinBalance).toBe(98);
     expect(bonus.result).toMatchObject({
       reels: ['snake', 'trap', 'clover', 'trap'],
-      pendingPrize: 12,
+      pendingPrize: 13,
       settledAt: null,
     });
   });

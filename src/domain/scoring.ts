@@ -1,11 +1,12 @@
 import type { Reels, Symbol } from './symbols';
 
 export const SCORING = {
-  threeCoins: 5,
-  fourCoins: 15,
-  clover: 9,
+  threeCoins: 3,
+  fourCoins: 5,
+  clover: 10,
   fourCrowns: 100,
-  coinBag: 20,
+  threeTripleCoins: 9,
+  fourTripleCoins: 15,
   snakeWithTrap: 3,
 } as const;
 
@@ -46,7 +47,9 @@ export function evaluateSpin(reels: Reels): SpinEvaluation {
   if (coins === 3) basePrize += SCORING.threeCoins;
   if (coins === 4) basePrize += SCORING.fourCoins;
   basePrize += (counts.clover ?? 0) * SCORING.clover;
-  basePrize += (counts['coin-bag'] ?? 0) * SCORING.coinBag;
+  const tripleCoins = counts['coin-bag'] ?? 0;
+  if (tripleCoins === 3) basePrize += SCORING.threeTripleCoins;
+  if (tripleCoins === 4) basePrize += SCORING.fourTripleCoins;
   if ((counts.crown ?? 0) === 4) basePrize += SCORING.fourCrowns;
   if (snakes > 0) basePrize += snakes * SCORING.snakeWithTrap;
 
