@@ -13,12 +13,23 @@ services:
       timeout: 5s
       retries: 10
   api:
-    build: .
+    build:
+      context: .
+      target: development
     environment:
       DATABASE_URL: postgresql://vault:vault@postgres:5432/vault
       PORT: 3000
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
     ports:
       - '3002:3000'
+    volumes:
+      - .:/app
+      - api_node_modules:/app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
+    command: sh -c "npm run migration:up && npm run start:dev"
+
+volumes:
+  api_node_modules:
