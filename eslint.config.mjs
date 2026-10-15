@@ -9,7 +9,15 @@ export default tseslint.config(
   prettier,
   {
     languageOptions: {
-      globals: { module: 'readonly', process: 'readonly', require: 'readonly' },
+      globals: {
+        module: 'readonly',
+        process: 'readonly',
+        require: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        crypto: 'readonly',
+        fetch: 'readonly',
+      },
     },
   },
 );

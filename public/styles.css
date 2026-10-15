@@ -1,0 +1,1398 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: oklch(17% 0.025 55);
+  color: oklch(94% 0.019 82);
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    linear-gradient(oklch(10% 0.02 53 / 0.15), oklch(10% 0.02 53 / 0.15)),
+    url('/assets/vault-room-backdrop.png') center top / cover fixed,
+    oklch(17% 0.025 55);
+}
+body::after {
+  position: fixed;
+  z-index: -1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  content: '';
+  background: radial-gradient(ellipse at center, transparent 42%, oklch(8% 0.014 52 / 0.26));
+}
+button {
+  font: inherit;
+}
+button:focus-visible {
+  outline: 3px solid oklch(84% 0.15 161);
+  outline-offset: 4px;
+}
+.scene {
+  width: min(1480px, calc(100% - 2rem));
+  margin: auto;
+  padding: 1.7rem 0 5.5rem;
+}
+.masthead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: min(1160px, calc(100% - 3.5rem));
+  margin: 0 auto -1.55rem;
+  position: relative;
+  z-index: 5;
+}
+.paper-title {
+  margin: 0;
+  color: oklch(92% 0.045 83);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+.brand-lockup h1 {
+  margin: 0.25rem 0 0;
+  color: oklch(93% 0.055 78);
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3.55rem);
+  font-style: italic;
+  line-height: 0.84;
+  letter-spacing: -0.075em;
+  -webkit-text-stroke: 1px oklch(47% 0.17 32);
+  text-shadow:
+    1px 1px 0 oklch(17% 0.025 55),
+    3px 3px 0 oklch(68% 0.16 37),
+    5px 5px 0 oklch(12% 0.017 53);
+}
+.arcade {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 920px);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.2rem, 5vw, 5.2rem);
+}
+.paytable {
+  position: relative;
+  z-index: 2;
+  width: 292px;
+  margin-top: 3.6rem;
+  padding: 2.2rem 1.45rem 1.6rem;
+  color: oklch(21% 0.026 59);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 1.35rem, oklch(40% 0.035 64 / 0.04) 1.42rem 1.46rem),
+    linear-gradient(100deg, transparent 49%, oklch(45% 0.035 74 / 0.13) 50%, transparent 51%), oklch(91% 0.028 87);
+  clip-path: polygon(1% 1%, 99% 0, 100% 98%, 2% 100%, 0 47%);
+  box-shadow:
+    9px 12px 0 oklch(8% 0.014 53 / 0.6),
+    inset 0 0 0 2px oklch(42% 0.035 68 / 0.36);
+  transform: rotate(-2.7deg);
+}
+.paytable::before,
+.paytable::after {
+  position: absolute;
+  color: oklch(58% 0.15 32);
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  content: '✦';
+}
+.paytable::before {
+  top: -1.15rem;
+  left: 1.45rem;
+  z-index: 2;
+  color: oklch(72% 0.025 74);
+  font-family: ui-monospace, monospace;
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  content: '⌇';
+  text-shadow: 1px 1px 0 oklch(18% 0.018 54);
+}
+.paytable::after {
+  top: 0.75rem;
+  right: 1.1rem;
+  bottom: auto;
+  left: auto;
+}
+.paper-title {
+  color: oklch(57% 0.13 37);
+  font-size: 0.94rem;
+}
+.paper-subtitle {
+  margin: 0.24rem 0 1rem;
+  font-family: Georgia, serif;
+  font-size: 1.03rem;
+  font-style: italic;
+}
+.paytable dl {
+  margin: 0;
+}
+.paytable dl div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  min-height: 2.85rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid oklch(41% 0.036 65 / 0.34);
+}
+.paytable dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.08rem;
+  color: oklch(37% 0.1 77);
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.paytable dt img {
+  width: 1.62rem;
+  height: 1.62rem;
+  filter: drop-shadow(0 1px 0 oklch(97% 0.03 90 / 0.6));
+}
+.paytable dd {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+.table-note {
+  margin: 1rem 0 0.65rem;
+  font-size: 0.8rem;
+  line-height: 1.36;
+}
+.paper-mark {
+  display: block;
+  color: oklch(57% 0.13 37);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-align: right;
+  text-transform: uppercase;
+}
+.cabinet {
+  position: relative;
+}
+.marquee {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+  margin: 0 auto -0.05rem;
+  padding: 1.22rem 1.5rem 0.82rem;
+  border: 4px solid oklch(15% 0.021 57);
+  border-bottom: 0;
+  border-radius: 48% 48% 0 0 / 21% 21% 0 0;
+  color: oklch(18% 0.025 57);
+  text-align: center;
+  background: linear-gradient(100deg, oklch(79% 0.096 82), oklch(92% 0.05 87) 50%, oklch(73% 0.08 77));
+  box-shadow:
+    inset 0 5px 0 oklch(97% 0.035 94 / 0.65),
+    inset 0 -5px 0 oklch(53% 0.06 55 / 0.22),
+    0 4px 0 oklch(53% 0.06 55);
+}
+.marquee::before,
+.marquee::after {
+  position: absolute;
+  top: 50%;
+  color: oklch(63% 0.15 42);
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  content: '✦';
+  transform: translateY(-50%);
+}
+.marquee::before {
+  left: 1.3rem;
+}
+.marquee::after {
+  right: 1.3rem;
+}
+.marquee p,
+.marquee span {
+  margin: 0;
+  font-size: 0.63rem;
+  font-weight: 900;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+.marquee h2 {
+  margin: -0.28rem 0 -0.18rem;
+  font-family: Georgia, serif;
+  font-size: clamp(4.15rem, 8vw, 6.45rem);
+  font-style: italic;
+  line-height: 0.95;
+  letter-spacing: -0.11em;
+}
+.cabinet-face {
+  position: relative;
+  z-index: 1;
+  min-height: 510px;
+  padding: 2rem 10.8rem 1.2rem 1.65rem;
+  border: 5px solid oklch(14% 0.02 55);
+  border-radius: 22px 22px 8px 8px;
+  background:
+    radial-gradient(circle at 4% 8%, oklch(88% 0.13 78 / 0.64) 0 0.22rem, transparent 0.3rem),
+    radial-gradient(circle at 96% 8%, oklch(88% 0.13 78 / 0.64) 0 0.22rem, transparent 0.3rem),
+    linear-gradient(100deg, oklch(45% 0.12 31), oklch(54% 0.165 32) 42%, oklch(39% 0.105 29) 100%);
+  box-shadow:
+    inset 0 0 0 3px oklch(81% 0.1 79 / 0.6),
+    inset 0 -13px 23px oklch(18% 0.03 53 / 0.52);
+}
+.cabinet-face::before {
+  position: absolute;
+  inset: 0.65rem;
+  border: 1px solid oklch(25% 0.045 52 / 0.8);
+  border-radius: 15px 15px 4px 4px;
+  content: '';
+  pointer-events: none;
+}
+.cabinet-face::after {
+  position: absolute;
+  inset: 0.9rem;
+  border-radius: 12px 12px 3px 3px;
+  content: '';
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 0 0, oklch(84% 0.13 78) 0 0.2rem, transparent 0.25rem),
+    radial-gradient(circle at 100% 0, oklch(84% 0.13 78) 0 0.2rem, transparent 0.25rem),
+    radial-gradient(circle at 0 100%, oklch(84% 0.13 78) 0 0.2rem, transparent 0.25rem),
+    radial-gradient(circle at 100% 100%, oklch(84% 0.13 78) 0 0.2rem, transparent 0.25rem);
+}
+.display {
+  position: absolute;
+  z-index: 1;
+  top: 2.05rem;
+  right: 1.3rem;
+  display: grid;
+  width: 134px;
+  padding: 0.85rem 0.65rem;
+  border: 4px solid oklch(14% 0.018 54);
+  background: linear-gradient(145deg, oklch(17% 0.045 164), oklch(12% 0.03 163));
+  color: oklch(84% 0.17 164);
+  box-shadow:
+    inset 0 0 22px oklch(75% 0.14 163 / 0.27),
+    0 3px 0 oklch(37% 0.07 43);
+  text-align: center;
+}
+.display span,
+.display small {
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.display strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 2.55rem;
+  line-height: 1.04;
+  text-shadow: 0 0 12px oklch(77% 0.16 162 / 0.5);
+}
+.reel-stage {
+  position: relative;
+  padding: 1.45rem 1.3rem 1.25rem;
+  border: 5px solid oklch(14% 0.019 54);
+  border-radius: 13px;
+  background: linear-gradient(145deg, oklch(28% 0.038 53), oklch(13% 0.02 53)), oklch(14% 0.02 53);
+  box-shadow:
+    inset 0 0 0 3px oklch(72% 0.075 77 / 0.48),
+    inset 0 18px 25px oklch(7% 0.012 52 / 0.5);
+}
+.reels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  border: 3px solid oklch(9% 0.012 53);
+  border-radius: 6px;
+  background: oklch(9% 0.012 53);
+}
+.reel {
+  display: grid;
+  min-height: 222px;
+  place-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 0.25rem;
+  border: 0;
+  border-right: 3px solid oklch(12% 0.016 54);
+  background:
+    radial-gradient(circle at 50% 20%, oklch(98% 0.022 91), transparent 46%),
+    linear-gradient(135deg, oklch(90% 0.035 84), oklch(81% 0.04 81));
+  color: oklch(17% 0.024 54);
+  cursor: pointer;
+  transition:
+    filter 180ms ease-out,
+    transform 180ms ease-out;
+}
+.reel:last-child {
+  border-right: 0;
+}
+.reel:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+.reel.is-selected {
+  box-shadow: inset 0 -8px oklch(82% 0.17 162);
+}
+.reel span {
+  display: grid;
+  min-height: clamp(3.1rem, 7vw, 5.1rem);
+  place-items: center;
+  line-height: 1;
+}
+.symbol-image {
+  display: block;
+  width: clamp(3.3rem, 7.4vw, 5.75rem);
+  height: clamp(3.3rem, 7.4vw, 5.75rem);
+  object-fit: contain;
+  filter: drop-shadow(1px 2px 0 oklch(17% 0.02 55 / 0.32));
+}
+.blank-symbol {
+  display: grid;
+  place-items: center;
+  color: oklch(70% 0.045 79);
+  font-family: Georgia, serif;
+  font-size: clamp(2.7rem, 6vw, 4.25rem);
+  font-weight: 700;
+}
+.reel small {
+  font-size: 0.59rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.selection-hint {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.outcome {
+  min-height: 78px;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 2px solid oklch(63% 0.09 69);
+  border-radius: 6px;
+  background: linear-gradient(100deg, oklch(20% 0.026 53), oklch(16% 0.022 54));
+  box-shadow: inset 0 1px oklch(78% 0.07 80 / 0.18);
+}
+.outcome-label {
+  display: block;
+  color: oklch(79% 0.13 81);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.outcome strong {
+  display: block;
+  margin-top: 0.22rem;
+  font-size: 1.05rem;
+}
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+.action-button,
+.quiet-button {
+  border: 3px solid oklch(14% 0.018 54);
+  border-radius: 5px;
+  padding: 0.88rem 0.5rem;
+  background: linear-gradient(145deg, oklch(41% 0.044 61), oklch(29% 0.03 57));
+  color: oklch(94% 0.022 84);
+  box-shadow:
+    inset 0 2px 0 oklch(86% 0.05 86 / 0.25),
+    0 3px 0 oklch(11% 0.015 53);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 900;
+  transition:
+    filter 180ms ease-out,
+    transform 180ms ease-out;
+}
+.action-button:hover:not(:disabled),
+.quiet-button:hover {
+  filter: brightness(1.13);
+  transform: translateY(-1px);
+}
+.action-button.primary {
+  background: linear-gradient(145deg, oklch(38% 0.042 59), oklch(26% 0.025 55));
+  color: oklch(94% 0.022 84);
+}
+.action-button.mint {
+  background: linear-gradient(145deg, oklch(38% 0.042 59), oklch(26% 0.025 55));
+}
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+.cabinet-base {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.98rem 1.6rem 1.25rem;
+  border: 5px solid oklch(14% 0.02 55);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(100deg, oklch(43% 0.115 31), oklch(53% 0.155 32), oklch(39% 0.1 29));
+  color: oklch(84% 0.09 78);
+  box-shadow: inset 0 -3px oklch(21% 0.035 50 / 0.52);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.cabinet-base strong {
+  color: oklch(95% 0.028 85);
+}
+.quiet-button {
+  padding: 0.74rem 1rem;
+  background: linear-gradient(145deg, oklch(25% 0.028 56), oklch(16% 0.018 54));
+  color: oklch(92% 0.035 83);
+}
+.history-panel {
+  max-width: 880px;
+  margin: 1.8rem auto 0;
+  padding: 1.2rem;
+  border: 3px solid oklch(58% 0.08 68);
+  background: oklch(21% 0.025 55);
+}
+.history-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.history-heading h2 {
+  margin: 0.2rem 0 0;
+  font-family: Georgia, serif;
+  font-size: 1.5rem;
+}
+.history-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.history-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid oklch(42% 0.04 62);
+  font-size: 0.82rem;
+}
+.history-list small {
+  color: oklch(73% 0.026 74);
+}
+.history-symbols {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+.history-symbol {
+  display: block;
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: contain;
+}
+.message {
+  max-width: 880px;
+  margin: 1rem auto 0;
+  padding: 0.9rem 1rem;
+  border: 2px solid oklch(61% 0.18 29);
+  background: oklch(31% 0.064 29);
+  color: oklch(94% 0.025 29);
+}
+@media (max-width: 1050px) {
+  .arcade {
+    grid-template-columns: 230px minmax(0, 760px);
+    gap: 1.5rem;
+  }
+  .cabinet-face {
+    padding-right: 9.1rem;
+  }
+  .display {
+    width: 110px;
+  }
+  .paytable {
+    padding-inline: 1.1rem;
+  }
+}
+@media (max-width: 850px) {
+  body {
+    background-position: center top;
+    background-attachment: scroll;
+  }
+  .masthead {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .arcade {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .paytable {
+    order: 2;
+    width: min(100%, 580px);
+    margin: 0 auto;
+    transform: none;
+  }
+  .cabinet {
+    order: 1;
+    width: min(100%, 790px);
+    margin: auto;
+  }
+}
+@media (max-width: 720px) {
+  .cabinet-face {
+    min-height: 0;
+    padding: 1.15rem 0.8rem 0.95rem;
+  }
+  .display {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: min(100%, 500px);
+    margin: 0 auto 0.85rem;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+  .display strong {
+    padding-inline: 0.5rem;
+  }
+  .reel-stage {
+    padding: 0.8rem;
+  }
+  .reel {
+    min-height: clamp(8rem, 24vw, 11rem);
+  }
+  .controls {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 580px) {
+  .scene {
+    width: min(100% - 1rem, 640px);
+    padding-top: 1.25rem;
+  }
+  .masthead {
+    position: relative;
+    display: grid;
+    min-height: 8.65rem;
+    place-items: start center;
+    margin-bottom: 0.65rem;
+    padding: 0.45rem 0 0;
+    text-align: center;
+  }
+  .brand-lockup {
+    padding-top: 3.05rem;
+  }
+  .brand-lockup h1 {
+    margin-top: 0.45rem;
+    font-size: clamp(2.1rem, 10vw, 3.05rem);
+  }
+  .masthead .quiet-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.67rem;
+  }
+  .arcade {
+    gap: 1.35rem;
+  }
+  .paytable {
+    order: 1;
+    width: min(100% - 0.45rem, 36rem);
+    margin: 0.1rem auto 0;
+    padding: 1.75rem 1rem 1.1rem;
+    transform: rotate(-1.1deg);
+  }
+  .paytable::before {
+    top: -1rem;
+    left: 0.95rem;
+    font-size: 2.9rem;
+  }
+  .paytable::after {
+    top: 0.35rem;
+    right: 0.7rem;
+    font-size: 1.55rem;
+  }
+  .paper-title {
+    font-size: 0.78rem;
+  }
+  .paper-subtitle {
+    margin-bottom: 0.55rem;
+    font-size: 0.92rem;
+  }
+  .paytable dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 0.95rem;
+  }
+  .paytable dl div {
+    min-height: 2.5rem;
+    gap: 0.3rem;
+    padding: 0.25rem 0;
+  }
+  .paytable dt img {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+  .paytable dd {
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+  .table-note {
+    margin: 0.7rem 0 0.45rem;
+    font-size: 0.72rem;
+  }
+  .paper-mark {
+    font-size: 0.55rem;
+  }
+  .cabinet {
+    order: 2;
+    padding-inline: 0;
+  }
+  .marquee {
+    padding: 0.95rem 1rem 0.65rem;
+  }
+  .marquee p,
+  .marquee span {
+    font-size: 0.48rem;
+  }
+  .marquee h2 {
+    font-size: clamp(3.45rem, 20vw, 5.1rem);
+  }
+  .marquee::before,
+  .marquee::after {
+    font-size: 1.35rem;
+  }
+  .marquee::before {
+    left: 0.7rem;
+  }
+  .marquee::after {
+    right: 0.7rem;
+  }
+  .cabinet-face {
+    min-height: 0;
+    padding: 1rem 0.65rem 0.8rem;
+  }
+  .display {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    margin: 0 auto 0.8rem;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+  .display strong {
+    padding-inline: 0.3rem;
+  }
+  .reel-stage {
+    padding: 0.55rem;
+  }
+  .reel {
+    min-height: clamp(7.15rem, 28vw, 9.5rem);
+  }
+  .reel small {
+    font-size: 0.43rem;
+  }
+  .controls {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  .action-button {
+    min-height: 3.1rem;
+    font-size: 0.88rem;
+  }
+  .cabinet-base {
+    padding-inline: 0.8rem;
+    font-size: 0.49rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Illustrated desktop plate. The artwork is deliberately free of UI content:
+   all titles, game state, paytable, and controls below remain editable HTML. */
+@media (min-width: 900px) {
+  body {
+    background: oklch(17% 0.025 55);
+  }
+
+  body::after {
+    display: none;
+  }
+
+  .scene {
+    position: relative;
+    width: min(100vw, 1584px);
+    min-height: 0;
+    aspect-ratio: 1584 / 993;
+    margin: 0 auto;
+    padding: 0;
+    background: url('/assets/vault-machine-blank-reels-plate.png') center / 100% 100% no-repeat;
+  }
+
+  .masthead,
+  .arcade,
+  .cabinet,
+  .cabinet-face,
+  .reel-stage {
+    position: static;
+    display: block;
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    filter: none;
+  }
+
+  .brand-lockup {
+    position: absolute;
+    top: 3.8%;
+    left: 8.8%;
+    z-index: 4;
+  }
+
+  .brand-lockup h1 {
+    margin-top: 0.25rem;
+    font-size: clamp(2rem, 4vw, 3.9rem);
+  }
+
+  .quiet-button {
+    position: absolute;
+    z-index: 5;
+    top: 2.8%;
+    right: 5.5%;
+    width: 9.4%;
+    height: 5.3%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: oklch(95% 0.02 83);
+    font-size: clamp(0.62rem, 1vw, 1rem);
+  }
+
+  .paytable {
+    position: absolute;
+    top: 22.4%;
+    left: 6.5%;
+    z-index: 3;
+    width: 20.8%;
+    height: 54.7%;
+    margin: 0;
+    /* Percentage padding on an absolutely positioned element is measured
+       against the stage, not the paper. That pushed the table's content far
+       down the sheet at desktop sizes. Keep this inset tied to the type scale
+       instead, so the printed content sits in the usable area of the paper. */
+    padding: clamp(2.15rem, 3.8vw, 3.75rem) 1.65% 1% 2%;
+    transform: rotate(-2.7deg);
+    background:
+      repeating-linear-gradient(0deg, transparent 0 1.35rem, oklch(40% 0.035 64 / 0.04) 1.42rem 1.46rem),
+      linear-gradient(100deg, transparent 49%, oklch(45% 0.035 74 / 0.13) 50%, transparent 51%), oklch(91% 0.028 87);
+    clip-path: polygon(1% 1%, 99% 0, 100% 98%, 2% 100%, 0 47%);
+    box-shadow:
+      9px 12px 0 oklch(8% 0.014 53 / 0.6),
+      inset 0 0 0 2px oklch(42% 0.035 68 / 0.36);
+  }
+
+  .paytable::before,
+  .paytable::after {
+    display: none;
+  }
+
+  .paper-title {
+    font-size: clamp(0.55rem, 1vw, 0.9rem);
+  }
+  .paper-subtitle {
+    margin: 0.25rem 0 1.25%;
+    font-size: clamp(0.68rem, 1.15vw, 1.08rem);
+  }
+  .paytable dl div {
+    min-height: clamp(1.9rem, 3vw, 3rem);
+    padding: 0;
+  }
+  .paytable dt img {
+    width: clamp(0.95rem, 1.65vw, 1.55rem);
+    height: clamp(0.95rem, 1.65vw, 1.55rem);
+  }
+  .paytable dd {
+    font-size: clamp(0.58rem, 1.05vw, 0.94rem);
+  }
+  .table-note {
+    margin: 4% 0 2%;
+    font-size: clamp(0.54rem, 0.86vw, 0.78rem);
+  }
+  .paper-mark {
+    font-size: clamp(0.45rem, 0.7vw, 0.65rem);
+  }
+
+  .marquee {
+    position: absolute;
+    top: 15.5%;
+    left: 45.1%;
+    z-index: 4;
+    width: 31.3%;
+    margin: 0;
+    padding: 1.2% 1% 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .marquee::before,
+  .marquee::after {
+    display: none;
+  }
+  .marquee p,
+  .marquee span {
+    font-size: clamp(0.42rem, 0.7vw, 0.65rem);
+    letter-spacing: 0.22em;
+  }
+  .marquee h2 {
+    margin: -2% 0 -1%;
+    font-size: clamp(3rem, 6.8vw, 6.3rem);
+  }
+
+  .display {
+    position: absolute;
+    top: 35.4%;
+    left: 79.55%;
+    z-index: 4;
+    width: 9.15%;
+    height: 10.8%;
+    padding: 0.55% 0.3%;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    align-content: center;
+    justify-items: center;
+  }
+  .display span,
+  .display small {
+    font-size: clamp(0.32rem, 0.52vw, 0.55rem);
+    line-height: 1.2;
+  }
+  .display strong {
+    font-size: clamp(1.25rem, 2.45vw, 2.45rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .reels {
+    position: absolute;
+    top: 38.1%;
+    left: 34.95%;
+    width: 42.05%;
+    height: 22.15%;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .reel,
+  .reel:last-child {
+    min-height: 0;
+    gap: 0.5rem;
+    padding: 0.7rem 0.2rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .reel.is-selected {
+    box-shadow: inset 0 -8px oklch(82% 0.17 162);
+  }
+  body:not(.has-result) .reel .symbol-image,
+  body:not(.has-result) .reel small {
+    opacity: 0;
+  }
+  .symbol-image {
+    width: clamp(2.8rem, 5.8vw, 5.5rem);
+    height: clamp(2.8rem, 5.8vw, 5.5rem);
+  }
+  .reel small {
+    font-size: clamp(0.4rem, 0.62vw, 0.62rem);
+  }
+
+  .outcome {
+    position: absolute;
+    top: 65.3%;
+    left: 32.5%;
+    z-index: 4;
+    width: 55.8%;
+    min-height: 7.5%;
+    margin: 0;
+    padding: 0.75% 1.1%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .outcome-label {
+    font-size: clamp(0.48rem, 0.7vw, 0.68rem);
+  }
+  .outcome strong {
+    font-size: clamp(0.72rem, 1.08vw, 1.05rem);
+  }
+
+  .controls {
+    position: static;
+    display: block;
+    margin: 0;
+  }
+  .action-button {
+    position: absolute;
+    z-index: 5;
+    height: 5.95%;
+    padding: 0;
+    border: 3px solid oklch(14% 0.018 54);
+    border-radius: 5px;
+    color: oklch(95% 0.022 84);
+    font-size: clamp(0.54rem, 0.92vw, 0.88rem);
+  }
+  #spin-button {
+    top: 74.75%;
+    left: 32.55%;
+    width: 17.65%;
+    background: linear-gradient(145deg, oklch(77% 0.13 78), oklch(64% 0.11 69));
+    color: oklch(18% 0.022 55);
+  }
+  #bonus-button {
+    top: 74.75%;
+    left: 50.85%;
+    width: 18.8%;
+    background: linear-gradient(145deg, oklch(39% 0.04 57), oklch(27% 0.03 55));
+  }
+  #redeem-button {
+    top: 74.75%;
+    left: 70.45%;
+    width: 17.65%;
+    background: linear-gradient(145deg, oklch(47% 0.12 166), oklch(34% 0.09 164));
+  }
+  .action-button:disabled {
+    opacity: 0.55;
+  }
+
+  .cabinet-base {
+    position: absolute;
+    top: 84.65%;
+    left: 28.8%;
+    z-index: 4;
+    width: 63.2%;
+    padding: 0.9% 4.8% 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    font-size: clamp(0.46rem, 0.72vw, 0.7rem);
+  }
+  .history-panel {
+    position: absolute;
+    z-index: 9;
+    top: 10%;
+    right: 5%;
+    width: min(29rem, 42%);
+    max-height: 76%;
+    overflow: auto;
+  }
+  .message:not([hidden]) {
+    position: absolute;
+    z-index: 10;
+    top: 66%;
+    left: 32.5%;
+    width: 55.8%;
+    margin: 0;
+  }
+}
+
+/* Desktop fidelity mode: the supplied art is the definitive cabinet artwork.
+   The semantic controls stay above it, so the game remains fully operable. */
+@media (max-width: 720px) {
+  body {
+    background: oklch(17% 0.025 55);
+  }
+
+  body::after {
+    display: none;
+  }
+
+  .scene {
+    position: relative;
+    width: min(100vw, 45rem);
+    min-height: 0;
+    aspect-ratio: 941 / 1672;
+    margin: 0 auto;
+    padding: 0;
+    background: url('/assets/vault-machine-mobile-clean-plate.png') center / 100% 100% no-repeat;
+  }
+
+  .masthead,
+  .arcade,
+  .cabinet,
+  .cabinet-face,
+  .reel-stage {
+    position: static;
+    display: block;
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    filter: none;
+  }
+
+  .selection-hint {
+    display: none !important;
+  }
+
+  .brand-lockup {
+    position: absolute;
+    top: 5.7%;
+    left: 12%;
+    z-index: 4;
+    width: 76%;
+    padding: 0;
+    text-align: center;
+  }
+
+  .brand-lockup h1 {
+    margin-top: 0.3rem;
+    font-size: clamp(2rem, 7.25vw, 4.2rem);
+  }
+
+  .quiet-button {
+    position: absolute;
+    z-index: 5;
+    top: 1.95%;
+    right: 4%;
+    width: 26.2%;
+    height: 3.5%;
+    min-height: 0;
+    padding: 0 0.2rem;
+    border: 2px solid oklch(14% 0.018 54);
+    border-radius: 5px;
+    background: linear-gradient(145deg, oklch(25% 0.028 56), oklch(16% 0.018 54));
+    box-shadow:
+      inset 0 2px 0 oklch(86% 0.05 86 / 0.25),
+      0 2px 0 oklch(11% 0.015 53);
+    color: oklch(92% 0.035 83);
+    font-size: clamp(0.45rem, 1.55vw, 0.84rem);
+  }
+
+  .quiet-button:hover {
+    filter: none;
+    transform: none;
+  }
+
+  .paytable {
+    position: absolute;
+    top: 14.85%;
+    left: 15.4%;
+    z-index: 4;
+    display: block;
+    width: 69.1%;
+    height: 20.2%;
+    margin: 0;
+    padding: 4.1% 4.9% 2.2%;
+    color: oklch(21% 0.026 59);
+    background: transparent;
+    box-shadow: none;
+    transform: rotate(-1.1deg);
+  }
+
+  .paytable::before,
+  .paytable::after {
+    display: none;
+  }
+
+  .paper-title {
+    font-size: clamp(0.56rem, 1.8vw, 0.98rem);
+  }
+
+  .paper-subtitle {
+    margin: 0.2rem 0 0.35rem;
+    font-size: clamp(0.64rem, 2.15vw, 1.08rem);
+  }
+
+  .paytable dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 7%;
+  }
+
+  .paytable dl div {
+    min-height: clamp(1.72rem, 3.4vw, 2.25rem);
+    gap: 0.25rem;
+    padding: 0.08rem 0;
+  }
+
+  .paytable dt img {
+    width: clamp(0.9rem, 2.45vw, 1.45rem);
+    height: clamp(0.9rem, 2.45vw, 1.45rem);
+  }
+
+  .paytable dd {
+    font-size: clamp(0.52rem, 1.7vw, 0.9rem);
+  }
+
+  .table-note {
+    margin: 0.32rem 0 0.22rem;
+    font-size: clamp(0.48rem, 1.55vw, 0.78rem);
+  }
+
+  .paper-mark {
+    font-size: clamp(0.42rem, 1.25vw, 0.64rem);
+  }
+
+  .marquee {
+    position: absolute;
+    top: 37.7%;
+    left: 25.2%;
+    z-index: 4;
+    display: block;
+    width: 49.7%;
+    height: 9.55%;
+    margin: 0;
+    padding: 1.55% 1% 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .marquee::before,
+  .marquee::after {
+    font-size: clamp(0.9rem, 3vw, 1.7rem);
+  }
+
+  .marquee::before {
+    left: 7%;
+  }
+
+  .marquee::after {
+    right: 7%;
+  }
+
+  .marquee p,
+  .marquee span {
+    font-size: clamp(0.35rem, 1.15vw, 0.62rem);
+  }
+
+  .marquee h2 {
+    margin: -0.2rem 0 -0.1rem;
+    font-size: clamp(2.7rem, 10.5vw, 6.1rem);
+  }
+
+  .display {
+    position: absolute;
+    top: 49.15%;
+    right: 11.75%;
+    z-index: 5;
+    display: grid;
+    width: 12.75%;
+    height: 5.9%;
+    padding: 7% 0 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: oklch(84% 0.17 164);
+    text-align: center;
+  }
+
+  .display span,
+  .display small {
+    font-size: clamp(0.27rem, 0.8vw, 0.45rem);
+  }
+
+  .display strong {
+    font-size: clamp(1rem, 4.9vw, 2.75rem);
+  }
+
+  .reels {
+    position: absolute;
+    top: 50.6%;
+    left: 14.9%;
+    z-index: 4;
+    width: 57.3%;
+    height: 11.8%;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .reel,
+  .reel:last-child {
+    min-height: 0;
+    gap: 0;
+    padding: 0.3rem 0.1rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: transparent;
+  }
+
+  .reel.is-selected {
+    box-shadow: inset 0 -5px oklch(82% 0.17 162) !important;
+  }
+
+  .reel small {
+    display: block;
+    font-size: clamp(0.31rem, 1.05vw, 0.57rem);
+  }
+
+  .symbol-image {
+    width: clamp(2rem, 9vw, 5.3rem);
+    height: clamp(2rem, 9vw, 5.3rem);
+  }
+
+  body:not(.has-result) .reel .symbol-image {
+    opacity: 0;
+  }
+
+  .outcome {
+    position: absolute;
+    top: 64.7%;
+    left: 11.2%;
+    z-index: 4;
+    width: 77.3%;
+    min-height: 4.45%;
+    margin: 0;
+    padding: 0.75% 1.4%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .outcome-label {
+    font-size: clamp(0.43rem, 1.8vw, 0.76rem);
+  }
+
+  .outcome strong {
+    margin-top: 0.08rem;
+    font-size: clamp(0.68rem, 2.7vw, 1.05rem);
+  }
+
+  .controls {
+    position: static;
+    display: block;
+    margin: 0;
+  }
+
+  .action-button {
+    position: absolute;
+    z-index: 5;
+    left: 11.2%;
+    width: 77.4%;
+    height: 3.85%;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none;
+    color: oklch(95% 0.022 84);
+    font-size: clamp(0.55rem, 2.15vw, 1.15rem);
+    opacity: 1;
+  }
+
+  #spin-button {
+    top: 70.05%;
+    color: oklch(18% 0.022 55);
+  }
+
+  #bonus-button {
+    top: 74.95%;
+  }
+
+  #redeem-button {
+    top: 79.25%;
+  }
+
+  .action-button:hover:not(:disabled) {
+    filter: none;
+    transform: none;
+  }
+
+  .action-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+  }
+
+  .action-button:focus-visible,
+  .quiet-button:focus-visible,
+  .reel:focus-visible {
+    outline: 3px solid oklch(84% 0.15 161);
+    outline-offset: -3px;
+  }
+
+  .history-panel {
+    position: absolute;
+    z-index: 9;
+    top: 7%;
+    right: 4%;
+    width: min(29rem, 92%);
+    max-height: 58%;
+    overflow: auto;
+  }
+
+  .message:not([hidden]) {
+    position: absolute;
+    z-index: 10;
+    top: 64.7%;
+    left: 11.2%;
+    width: 77.3%;
+    margin: 0;
+    font-size: clamp(0.66rem, 2.8vw, 1rem);
+  }
+
+  .cabinet-base {
+    position: absolute;
+    top: 84.55%;
+    left: 11.3%;
+    z-index: 4;
+    display: flex !important;
+    width: 77.25%;
+    padding: 1.05% 3.2% 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    font-size: clamp(0.36rem, 1.2vw, 0.68rem);
+  }
+}
