@@ -103,7 +103,7 @@ testability without adding unnecessary ceremony.
 - A coin bag awards an intermediate fixed prize and can be combined with other
   valid winnings.
 - The initial scoring values are intentionally centralized and configurable:
-  three coins = 5 coins, four coins = 15 coins, each clover = 9 coins,
+  three coins = 5 coins, four coins = 15 coins, each clover = 10 coins,
   four crowns = 100 coins, and each coin bag = 20 coins. These values are
   balancing defaults, not client-controlled data.
 - Define and document the behavior for non-winning combinations, winning
