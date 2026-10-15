@@ -33,10 +33,20 @@ async function withAdminDatabase(action: (client: Client) => Promise<void>): Pro
   }
 }
 
+async function resetTestDatabase(): Promise<void> {
+  await withAdminDatabase(async (client) => {
+    await client.query(
+      'select pg_terminate_backend(pid) from pg_stat_activity where datname = $1 and pid <> pg_backend_pid()',
+      [databaseName],
+    );
+    await client.query(`drop database if exists ${databaseName}`);
+  });
+}
+
 describe('Game API (e2e)', () => {
   beforeAll(async () => {
+    await resetTestDatabase();
     await withAdminDatabase(async (client) => {
-      await client.query(`drop database if exists ${databaseName}`);
       await client.query(`create database ${databaseName}`);
     });
 
@@ -54,9 +64,16 @@ describe('Game API (e2e)', () => {
 
   afterAll(async () => {
     await app?.close();
-    await withAdminDatabase(async (client) => {
-      await client.query(`drop database if exists ${databaseName}`);
-    });
+    await resetTestDatabase();
+  });
+
+  it('serves the local game client and documented API schema', async () => {
+    const client = await request(app.getHttpServer()).get('/').expect(200);
+    expect(client.text).toContain('<title>The Vault Algorithm</title>');
+
+    const schema = await request(app.getHttpServer()).get('/docs-json').expect(200);
+    expect(schema.body.paths['/v1/spins'].post.responses).toHaveProperty('201');
+    expect(schema.body.components.schemas).toHaveProperty('SpinResponseDto');
   });
 
   it('creates an anonymous player and exposes a server-generated pending result', async () => {
@@ -89,7 +106,7 @@ describe('Game API (e2e)', () => {
   });
 
   it('prevents an unresolved prize from being bypassed by another spin', async () => {
-    await request(app.getHttpServer())
+    const spin = await request(app.getHttpServer())
       .post('/v1/spins')
       .set('x-anonymous-player-id', FIRST_PLAYER_ID)
       .send({})
@@ -98,8 +115,14 @@ describe('Game API (e2e)', () => {
     await request(app.getHttpServer())
       .post('/v1/spins')
       .set('x-anonymous-player-id', FIRST_PLAYER_ID)
-      .send({})
+      .send({ pendingResultId: '5ba145c1-9341-4b6a-b32d-8327df1a3f6d' })
       .expect(409);
+
+    await request(app.getHttpServer())
+      .post('/v1/spins')
+      .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+      .send({ pendingResultId: spin.body.result.id })
+      .expect(201);
   });
 
   it('serializes concurrent first spins for the same anonymous player', async () => {
@@ -127,7 +150,11 @@ describe('Game API (e2e)', () => {
       .get('/v1/history')
       .set('x-anonymous-player-id', SECOND_PLAYER_ID)
       .expect(200)
-      .expect({ items: [], pagination: { total: 0, limit: 20, offset: 0 } });
+      .expect({
+        player: { publicId: SECOND_PLAYER_ID, coinBalance: 100, personalRecord: 0 },
+        items: [],
+        pagination: { total: 0, limit: 20, offset: 0 },
+      });
 
     await request(app.getHttpServer())
       .post(`/v1/results/${spin.body.result.id}/redeem`)
@@ -152,7 +179,10 @@ describe('Game API (e2e)', () => {
       .set('x-anonymous-player-id', FIRST_PLAYER_ID)
       .expect(200);
 
-    expect(history.body).toMatchObject({ pagination: { total: 1, limit: 1, offset: 0 } });
+    expect(history.body).toMatchObject({
+      player: { publicId: FIRST_PLAYER_ID },
+      pagination: { total: 1, limit: 1, offset: 0 },
+    });
     expect(history.body.items).toHaveLength(1);
 
     await request(app.getHttpServer())

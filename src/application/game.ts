@@ -55,6 +55,7 @@ export interface SpinResponse {
 }
 
 export interface HistoryPage {
+  player: Pick<Player, 'publicId' | 'coinBalance' | 'personalRecord'>;
   results: GameResult[];
   total: number;
   limit: number;
@@ -132,7 +133,7 @@ export class GameService {
       this.repository.listResultsForPlayer(player.id, limit, offset),
       this.repository.countResultsForPlayer(player.id),
     ]);
-    return { results, total, limit, offset };
+    return { player: this.toPlayerResponse(player), results, total, limit, offset };
   }
 
   private async resolvePlayer(repository: GameRepository, publicId: string, lockForUpdate = false): Promise<Player> {
