@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,17 +21,17 @@
           aria-expanded="false"
           aria-controls="history-panel"
         >
-          Ver histórico
+          View history
         </button>
       </header>
 
-      <section class="arcade" aria-label="Máquina de quatro rolos">
-        <aside class="paytable" aria-label="Tabela de prêmios">
+      <section class="arcade" aria-label="Four-reel slot machine">
+        <aside class="paytable" aria-label="Pay table">
           <p class="paper-title">Payouts</p>
           <p class="paper-subtitle">The vault pays in coins</p>
           <dl>
             <div>
-              <dt aria-label="Três moedas">
+              <dt aria-label="Three coins">
                 <img src="/symbols/coin.png" alt="" /><img src="/symbols/coin.png" alt="" /><img
                   src="/symbols/coin.png"
                   alt=""
@@ -40,7 +40,7 @@
               <dd>5</dd>
             </div>
             <div>
-              <dt aria-label="Quatro moedas">
+              <dt aria-label="Four coins">
                 <img src="/symbols/coin.png" alt="" /><img src="/symbols/coin.png" alt="" /><img
                   src="/symbols/coin.png"
                   alt=""
@@ -49,11 +49,11 @@
               <dd>15</dd>
             </div>
             <div>
-              <dt aria-label="Trevo"><img src="/symbols/clover.png" alt="" /></dt>
+              <dt aria-label="Clover"><img src="/symbols/clover.png" alt="" /></dt>
               <dd>10 each</dd>
             </div>
             <div>
-              <dt aria-label="Quatro coroas">
+              <dt aria-label="Four crowns">
                 <img src="/symbols/crown.png" alt="" /><img src="/symbols/crown.png" alt="" /><img
                   src="/symbols/crown.png"
                   alt=""
@@ -62,17 +62,17 @@
               <dd>100</dd>
             </div>
             <div>
-              <dt aria-label="Bolsa de dinheiro"><img src="/symbols/coin-bag.png" alt="" /></dt>
+              <dt aria-label="Coin bag"><img src="/symbols/coin-bag.png" alt="" /></dt>
               <dd>20 each</dd>
             </div>
             <div>
-              <dt aria-label="Cobra com armadilha">
+              <dt aria-label="Snake with trap">
                 <img src="/symbols/snake.png" alt="" /><span>+</span><img src="/symbols/trap.png" alt="" />
               </dt>
               <dd>3 each</dd>
             </div>
             <div>
-              <dt aria-label="Multiplicador duas vezes"><img src="/symbols/multiplier-2x.png" alt="" /></dt>
+              <dt aria-label="Two-times multiplier"><img src="/symbols/multiplier-2x.png" alt="" /></dt>
               <dd>double</dd>
             </div>
           </dl>
@@ -91,35 +91,33 @@
             <div class="display" aria-live="polite">
               <span>coin reserve</span><strong id="coin-balance">—</strong><small>tokens</small>
             </div>
-            <div class="reel-stage" aria-label="Resultado do giro">
+            <div class="reel-stage" aria-label="Spin result">
               <div class="reels" id="reels">
                 <button class="reel is-selected" type="button" data-reel="0" aria-pressed="true">
-                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Em branco">─</span></span
+                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Blank">─</span></span
                   ><small>reel I</small>
                 </button>
                 <button class="reel" type="button" data-reel="1" aria-pressed="false">
-                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Em branco">─</span></span
+                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Blank">─</span></span
                   ><small>reel II</small>
                 </button>
                 <button class="reel" type="button" data-reel="2" aria-pressed="false">
-                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Em branco">─</span></span
+                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Blank">─</span></span
                   ><small>reel III</small>
                 </button>
                 <button class="reel" type="button" data-reel="3" aria-pressed="false">
-                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Em branco">─</span></span
+                  <span><span class="symbol-image blank-symbol" role="img" aria-label="Blank">─</span></span
                   ><small>reel IV</small>
                 </button>
               </div>
-              <p class="selection-hint">Selecione um rolo antes de usar o giro bônus.</p>
+              <p class="selection-hint">Select one reel before using a bonus spin.</p>
             </div>
             <div class="outcome" id="outcome" role="status" aria-live="polite">
               <span class="outcome-label">the mechanism is ready</span
               ><strong id="prize">Spin to reveal the symbols</strong>
             </div>
             <div class="controls">
-              <button id="spin-button" class="action-button primary" type="button" disabled>
-                Rolar novamente · 1 moeda
-              </button>
+              <button id="spin-button" class="action-button primary" type="button" disabled>Spin again · 1 coin</button>
               <button id="bonus-button" class="action-button bonus" type="button" disabled>Bonus spin · 1 coin</button>
               <button id="redeem-button" class="action-button mint" type="button" disabled>Claim prize</button>
             </div>

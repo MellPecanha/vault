@@ -1,10 +1,10 @@
 # The Vault Algorithm
 
-Backend MVP de uma máquina de quatro rolos. A API é a única fonte de verdade: ela gera símbolos, calcula o prêmio, controla o saldo e guarda o histórico de cada jogador anônimo. Não há dinheiro real, autenticação ou carteira externa.
+Backend MVP for a four-reel slot machine. The API is the sole source of truth: it generates symbols, calculates prizes, controls the balance, and stores every anonymous player's history. There is no real money, authentication, or external wallet.
 
-## Executar
+## Run
 
-Requer Node 22+ e Docker para o fluxo completo. O PostgreSQL expõe a porta `15432` no host para evitar colisão com instalações locais; entre containers ele usa a porta padrão `5432`.
+Node 22+ and Docker are required for the full workflow. PostgreSQL exposes port `15432` on the host to avoid collisions with local installations; containers use the standard `5432` port.
 
 ```bash
 npm ci
@@ -12,26 +12,26 @@ cp .env.example .env
 docker compose up --build
 ```
 
-A API via Docker fica em `http://localhost:3002` e a documentação Swagger em `http://localhost:3002/docs` (a porta interna/local padrão da aplicação é `3000`). Esse compose é voltado ao desenvolvimento: o código é montado no container e o Nest observa mudanças em `src`; arquivos em `public` são servidos diretamente do diretório montado. Salve uma alteração e recarregue o navegador, sem reconstruir a imagem. Ao criar uma migração, reinicie o serviço com `docker compose up --build` para aplicá-la na inicialização.
+With Docker, the API is available at `http://localhost:3002` and Swagger documentation at `http://localhost:3002/docs` (the default local/internal application port is `3000`). The compose setup is development-oriented: source code is mounted into the container, Nest watches `src`, and files in `public` are served directly from the mounted directory. Save a change and refresh the browser, without rebuilding the image. When creating a migration, restart the service with `docker compose up --build` so it runs at startup.
 
-## Cliente do jogo
+## Game client
 
-Com a aplicação em execução, abra `http://localhost:3002` para jogar no navegador. O cliente é estático e não possui dependências adicionais: ele cria um UUID com `crypto.randomUUID()`, guarda-o em `localStorage` na chave `vault-anonymous-player-id` e o envia no header `x-anonymous-player-id` em cada ação.
+With the application running, open `http://localhost:3002` to play in the browser. The client is static and has no additional dependencies: it creates a UUID with `crypto.randomUUID()`, stores it in `localStorage` under `vault-anonymous-player-id`, and sends it in the `x-anonymous-player-id` header for every action.
 
-Ao abrir o jogo, os controles permanecem desabilitados até o servidor resolver o jogador e devolver seu saldo e recorde persistidos. Assim, um jogador que retorna não vê o saldo inicial temporário. Os quatro rolos exibem somente o resultado retornado pelo servidor. Se houver prêmio pendente, escolha `Rolar novamente` para liquidá-lo e iniciar o próximo giro, `Resgatar prêmio` para liquidar sem um novo giro, ou selecione um rolo e use `Giro bônus`. O histórico também é do mesmo jogador anônimo. Para reiniciar uma demonstração local, apague essa chave do armazenamento do navegador.
+When the game opens, controls remain disabled until the server resolves the player and returns their persisted balance and record. Returning players therefore never see a temporary starting balance. The four reels display only the result returned by the server. If a prize is pending, select `Spin again` to settle it and start the next spin, `Claim prize` to settle it without a new spin, or select a reel and use `Bonus spin`. The history also belongs to the same anonymous player. To reset a local demo, delete that key from browser storage.
 
-Para desenvolvimento local, inicie somente o banco (`docker compose up postgres -d`), defina `DATABASE_URL` e execute:
+For local development, start only the database (`docker compose up postgres -d`), set `DATABASE_URL`, and run:
 
 ```bash
 npm run migration:up
 npm run start:dev
 ```
 
-As migrações são explícitas; a aplicação nunca altera o schema automaticamente.
+Migrations are explicit; the application never changes the schema automatically.
 
-## Identidade anônima
+## Anonymous identity
 
-O cliente deve gerar um UUID criptograficamente seguro na primeira visita, por exemplo com `crypto.randomUUID()`, e guardá-lo em `localStorage` sob a chave `vault-anonymous-player-id`. Em todas as requisições abaixo, envie-o como `x-anonymous-player-id`.
+The client must create a cryptographically secure UUID on the first visit, for example with `crypto.randomUUID()`, and store it in `localStorage` under `vault-anonymous-player-id`. Send it as `x-anonymous-player-id` in every request below.
 
 ```ts
 const key = 'vault-anonymous-player-id';
@@ -42,20 +42,20 @@ if (!playerId || !/^[0-9a-f-]{36}$/i.test(playerId)) {
 }
 ```
 
-O servidor valida UUIDs, cria o jogador idempotentemente quando ele aparece pela primeira vez e não aceita do cliente símbolos, pontuação, saldo ou recorde. O identificador é apenas pseudônimo e não é autenticação.
+The server validates UUIDs, creates a player idempotently on first use, and never accepts client-supplied symbols, score, balance, or record. The identifier is pseudonymous only, not authentication.
 
 ## API
 
-Todos os endpoints exigem `x-anonymous-player-id: <uuid>`.
+Every endpoint requires `x-anonymous-player-id: <uuid>`.
 
-| Operação          | Endpoint                                 | Corpo                                                                                                                               |
-| ----------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Giro regular      | `POST /v1/spins`                         | Vazio no primeiro giro; `{ "pendingResultId": "<uuid>" }` é obrigatório quando há prêmio pendente para liquidá-lo e rolar novamente |
-| Giro bônus        | `POST /v1/results/:resultId/bonus-spins` | `{ "reelIndex": 0 }` (de 0 a 3)                                                                                                     |
-| Resgatar prêmio   | `POST /v1/results/:resultId/redeem`      | nenhum                                                                                                                              |
-| Histórico próprio | `GET /v1/history?limit=20&offset=0`      | nenhum                                                                                                                              |
+| Operation    | Endpoint                                 | Body                                                                                                                          |
+| ------------ | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Regular spin | `POST /v1/spins`                         | Empty for the first spin; `{ "pendingResultId": "<uuid>" }` is required when a prize is pending, to settle it and spin again. |
+| Bonus spin   | `POST /v1/results/:resultId/bonus-spins` | `{ "reelIndex": 0 }` (from 0 to 3)                                                                                            |
+| Claim prize  | `POST /v1/results/:resultId/redeem`      | None                                                                                                                          |
+| Own history  | `GET /v1/history?limit=20&offset=0`      | None                                                                                                                          |
 
-Exemplo de giro:
+Example spin:
 
 ```bash
 curl -X POST http://localhost:3002/v1/spins \
@@ -63,51 +63,51 @@ curl -X POST http://localhost:3002/v1/spins \
   -H 'content-type: application/json' -d '{}'
 ```
 
-Uma resposta inclui o saldo atual, recorde pessoal e o resultado com `reels`, avaliação, `pendingPrize` e `settledAt`. O prêmio fica pendente até `redeem` ou até ser informado no próximo giro regular; a API rejeita um novo giro que tente contornar esse prêmio. O histórico retorna `{ player, items, pagination }`, com o estado atual do jogador e `total`, `limit` e `offset`. Erros de UUID e validação retornam 400; resultado de outro jogador ou inexistente retorna 404; prêmio pendente não liquidado ou já liquidado retorna 409; e saldo insuficiente retorna 422.
+A response includes the current balance, personal record, and result with `reels`, evaluation, `pendingPrize`, and `settledAt`. A prize stays pending until `redeem` or until it is passed to the next regular spin; the API rejects a spin that tries to bypass it. History returns `{ player, items, pagination }` with the current player state and `total`, `limit`, and `offset`. UUID and validation errors return 400; a missing result or one owned by another player returns 404; an unsettled or already-settled prize returns 409; and insufficient balance returns 422.
 
-## Regras
+## Rules
 
-Cada giro regular e bônus custa 1 moeda; um novo jogador começa com 100. Giro bônus substitui exatamente um rolo de um resultado pendente e pode ser repetido antes da liquidação.
+Each regular and bonus spin costs 1 coin; a new player starts with 100. A bonus spin replaces exactly one reel on a pending result and may be repeated before settlement.
 
-| Combinação                                 |      Prêmio |
-| ------------------------------------------ | ----------: |
-| Exatamente 3 moedas                        |           3 |
-| 4 moedas                                   |           5 |
-| Cada trevo                                 |          10 |
-| 4 coroas                                   |         100 |
-| Exatamente 3 símbolos de bolsa de dinheiro |           9 |
-| 4 símbolos de bolsa de dinheiro            |          15 |
-| Cobra protegida por ao menos uma armadilha | 3 por cobra |
+| Combination                          |       Prize |
+| ------------------------------------ | ----------: |
+| Exactly 3 coins                      |           3 |
+| 4 coins                              |           5 |
+| Each clover                          |          10 |
+| 4 crowns                             |         100 |
+| Exactly 3 coin-bag symbols           |           9 |
+| 4 coin-bag symbols                   |          15 |
+| Snake protected by at least one trap | 3 per snake |
 
-Uma cobra sem armadilha anula todos os ganhos. Cada `multiplier-2x` dobra cumulativamente o subtotal após as demais regras. Combinações não premiadas retornam prêmio zero.
+A snake without a trap cancels every prize. Each `multiplier-2x` cumulatively doubles the subtotal after the other rules. Non-winning combinations return a zero prize.
 
-### Probabilidades por rolo
+### Per-reel probabilities
 
-Os resultados são sorteados exclusivamente no servidor. Cada um dos quatro rolos usa a tabela abaixo de forma independente; `blank` não tem prêmio e `coin-bag` é o símbolo visual de bolsa de dinheiro.
+Results are generated exclusively on the server. Each of the four reels independently uses the table below; `blank` has no prize and `coin-bag` is the visual money-bag symbol.
 
-| Símbolo                            | Probabilidade |
-| ---------------------------------- | ------------: |
-| Moeda (`coin`)                     |           30% |
-| Em branco (`blank`)                |           27% |
-| Bolsa de dinheiro (`coin-bag`)     |           10% |
-| Multiplicador 2x (`multiplier-2x`) |           10% |
-| Cobra (`snake`)                    |           10% |
-| Coroa (`crown`)                    |            8% |
-| Armadilha (`trap`)                 |            4% |
-| Trevo (`clover`)                   |            1% |
+| Symbol                          | Probability |
+| ------------------------------- | ----------: |
+| Coin (`coin`)                   |         30% |
+| Blank (`blank`)                 |         27% |
+| Coin bag (`coin-bag`)           |         10% |
+| 2x multiplier (`multiplier-2x`) |         10% |
+| Snake (`snake`)                 |         10% |
+| Crown (`crown`)                 |          8% |
+| Trap (`trap`)                   |          4% |
+| Clover (`clover`)               |          1% |
 
-As probabilidades são aplicadas a cada rolo, não à combinação final. A tabela de pesos fica em `src/domain/symbols.ts`, e a fonte criptográfica converte um ticket aleatório de 0 a 99 em símbolo no servidor.
+Probabilities apply to each reel, not the final combination. The weight table lives in `src/domain/symbols.ts`; the cryptographic source maps a random ticket from 0 through 99 to a server-side symbol.
 
-## Arquitetura
+## Architecture
 
-- `src/domain`: símbolos, aleatoriedade injetável e cálculo puro de pontuação.
-- `src/application`: orquestra saldo, prêmio pendente, bônus e contratos de persistência.
-- `src/infrastructure`: adaptadores MikroORM/PostgreSQL, fonte criptográfica de aleatoriedade e HTTP.
-- `src/game`: controladores e integração NestJS.
+- `src/domain`: symbols, injectable randomness, and pure score calculation.
+- `src/application`: balance, pending-prize, bonus, and persistence-contract orchestration.
+- `src/infrastructure`: MikroORM/PostgreSQL adapters, cryptographic randomness, and HTTP.
+- `src/game`: NestJS controllers and integration.
 
-`players.public_id` é único e `game_results` tem índice por jogador e data de criação. Resultados pertencem ao jogador resolvido pelo header; não há parâmetro que permita consultar o histórico de terceiros. Operações que alteram saldo ou resultados são transacionais e usam locks pessimistas para serializar ações concorrentes do mesmo jogador ou resultado.
+`players.public_id` is unique and `game_results` has an index by player and creation date. Results belong to the player resolved from the header; no parameter can read another player's history. Balance- and result-changing operations are transactional and use pessimistic locks to serialize concurrent actions for the same player or result.
 
-## Verificação
+## Verification
 
 ```bash
 npm test
@@ -116,10 +116,10 @@ npm run format:check
 npm run build
 ```
 
-Os testes de domínio e casos de uso são determinísticos e não exigem PostgreSQL. Para os testes e2e, mantenha o PostgreSQL Docker iniciado e execute:
+Domain and use-case tests are deterministic and do not require PostgreSQL. For e2e tests, keep Docker PostgreSQL running and execute:
 
 ```bash
 TEST_DATABASE_URL=postgresql://vault:vault@localhost:15432/vault_e2e npm run test:e2e
 ```
 
-Esse comando cria e remove exclusivamente o banco `vault_e2e`.
+This command creates and removes only the `vault_e2e` database.

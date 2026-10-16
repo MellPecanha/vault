@@ -1,19 +1,19 @@
 const storageKey = 'vault-anonymous-player-id';
 const symbols = {
-  coin: { alt: 'Moeda', src: '/symbols/coin.png' },
-  blank: { alt: 'Em branco' },
-  clover: { alt: 'Trevo', src: '/symbols/clover.png' },
-  snake: { alt: 'Cobra', src: '/symbols/snake.png' },
-  trap: { alt: 'Armadilha', src: '/symbols/trap.png' },
-  crown: { alt: 'Coroa', src: '/symbols/crown.png' },
-  'coin-bag': { alt: 'Bolsa de dinheiro', src: '/symbols/coin-bag.png' },
-  'multiplier-2x': { alt: 'Multiplicador de duas vezes', src: '/symbols/multiplier-2x.png' },
+  coin: { alt: 'Coin', src: '/symbols/coin.png' },
+  blank: { alt: 'Blank' },
+  clover: { alt: 'Clover', src: '/symbols/clover.png' },
+  snake: { alt: 'Snake', src: '/symbols/snake.png' },
+  trap: { alt: 'Trap', src: '/symbols/trap.png' },
+  crown: { alt: 'Crown', src: '/symbols/crown.png' },
+  'coin-bag': { alt: 'Coin bag', src: '/symbols/coin-bag.png' },
+  'multiplier-2x': { alt: 'Two-times multiplier', src: '/symbols/multiplier-2x.png' },
 };
 const labels = {
-  win: 'prêmio calculado',
-  loss: 'sem prêmio nesta rodada',
-  'snake-loss': 'a cobra anulou o giro',
-  'snake-protected': 'armadilha protegeu a cobra',
+  win: 'prize calculated',
+  loss: 'no prize this spin',
+  'snake-loss': 'the snake cancelled this spin',
+  'snake-protected': 'the trap protected the snake reward',
 };
 const state = { result: null, selectedReel: 0, busy: true };
 const $ = (selector) => document.querySelector(selector);
@@ -33,7 +33,7 @@ async function api(path, options = {}) {
     headers: { 'content-type': 'application/json', 'x-anonymous-player-id': playerId(), ...(options.headers || {}) },
   });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.message || 'Não foi possível concluir a ação.');
+  if (!response.ok) throw new Error(body.message || 'The action could not be completed.');
   return body;
 }
 function setBusy(value) {
@@ -76,14 +76,14 @@ function updateResult(result) {
   const settled = result.settledAt !== null;
   state.result = settled ? null : result;
   $('#prize').textContent = settled
-    ? `${result.pendingPrize} moedas liquidado${result.pendingPrize === 1 ? '' : 's'}`
+    ? `${result.pendingPrize} coin${result.pendingPrize === 1 ? '' : 's'} settled`
     : result.pendingPrize > 0
-      ? `${result.pendingPrize} moedas aguardando resgate`
+      ? `${result.pendingPrize} coin${result.pendingPrize === 1 ? '' : 's'} awaiting settlement`
       : labels[result.evaluation.outcome];
   $('#outcome .outcome-label').textContent = settled
-    ? 'prêmio liquidado'
-    : labels[result.evaluation.outcome] || 'resultado do servidor';
-  $('#spin-button').textContent = settled ? 'Rolar · 1 moeda' : 'Rolar novamente · 1 moeda';
+    ? 'prize settled'
+    : labels[result.evaluation.outcome] || 'server result';
+  $('#spin-button').textContent = settled ? 'Spin · 1 coin' : 'Spin again · 1 coin';
   reels.forEach((reel, index) => {
     reel.querySelector('span').replaceChildren(symbolImage(result.reels[index]));
   });
@@ -117,7 +117,7 @@ async function loadHistory() {
       symbolsPreview.className = 'history-symbols';
       item.reels.forEach((symbol) => symbolsPreview.append(symbolImage(symbol, 'history-symbol')));
       const details = document.createElement('small');
-      details.textContent = `${item.pendingPrize} moedas · ${item.settledAt ? 'liquidado' : 'pendente'}`;
+      details.textContent = `${item.pendingPrize} coin${item.pendingPrize === 1 ? '' : 's'} · ${item.settledAt ? 'settled' : 'pending'}`;
       line.append(symbolsPreview, details);
       return line;
     }),
