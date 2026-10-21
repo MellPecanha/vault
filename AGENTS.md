@@ -62,8 +62,8 @@ testability without adding unnecessary ceremony.
 ## Game Rules
 
 - A spin produces exactly four reel symbols.
-- The available symbols are `coin`, `clover`, `snake`, `trap`, `crown`,
-  `coin-bag`, and `multiplier-2x`.
+- The available symbols are `coin`, `blank`, `clover`, `snake`, `trap`, `crown`,
+  `coin-bag`, and `multiplier-2x`. `blank` does not award a prize.
 - Reel symbols and valid winning combinations must be predefined and explicit.
 - The server is the source of truth for random outcomes, combination
   evaluation, and score calculation.
@@ -100,11 +100,10 @@ testability without adding unnecessary ceremony.
   are evaluated, including the protected snake reward. For example, two snakes
   with a trap and one multiplier award 12 coins (`2 * 3 * 2`), while two
   multipliers apply a 4x multiplier.
-- A coin bag awards an intermediate fixed prize and can be combined with other
-  valid winnings.
+- Three or four coin bags award fixed prizes; fewer than three do not.
 - The initial scoring values are intentionally centralized and configurable:
-  three coins = 5 coins, four coins = 15 coins, each clover = 10 coins,
-  four crowns = 100 coins, and each coin bag = 20 coins. These values are
+  three coins = 3 coins, four coins = 5 coins, each clover = 10 coins,
+  four crowns = 100 coins, three coin bags = 9 coins, and four coin bags = 15 coins. These values are
   balancing defaults, not client-controlled data.
 - Define and document the behavior for non-winning combinations, winning
   combinations, invalid input, and failures.

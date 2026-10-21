@@ -2,6 +2,8 @@
 
 Backend MVP for a four-reel slot machine. The API is the sole source of truth: it generates symbols, calculates prizes, controls the balance, and stores every anonymous player's history. There is no real money, authentication, or external wallet.
 
+Built with NestJS, TypeScript, PostgreSQL, and MikroORM. The project demonstrates pure game rules, transactional balance updates, database migrations, and automated API tests.
+
 ## Run
 
 Node 22+ and Docker are required for the full workflow. PostgreSQL exposes port `15432` on the host to avoid collisions with local installations; containers use the standard `5432` port.
@@ -42,7 +44,7 @@ if (!playerId || !/^[0-9a-f-]{36}$/i.test(playerId)) {
 }
 ```
 
-The server validates UUIDs, creates a player idempotently on first use, and never accepts client-supplied symbols, score, balance, or record. The identifier is pseudonymous only, not authentication.
+The server validates UUIDs, creates a player idempotently on first use, and never accepts client-supplied symbols, score, balance, or record. The identifier is pseudonymous only, not authentication: anyone who knows it can access the associated game data. Clearing browser storage loses the local association unless the identifier was saved elsewhere.
 
 ## API
 
@@ -107,6 +109,8 @@ Probabilities apply to each reel, not the final combination. The weight table li
 
 `players.public_id` is unique and `game_results` has an index by player and creation date. Results belong to the player resolved from the header; no parameter can read another player's history. Balance- and result-changing operations are transactional and use pessimistic locks to serialize concurrent actions for the same player or result.
 
+The player lock ensures that simultaneous redemption requests cannot credit the same prize twice. The database transaction also rolls back the balance and result together if persistence fails. Game rules remain independent of HTTP and database entities, so deterministic tests can supply a known sequence of symbols.
+
 ## Verification
 
 ```bash
@@ -123,3 +127,5 @@ TEST_DATABASE_URL=postgresql://vault:vault@localhost:15432/vault_e2e npm run tes
 ```
 
 This command creates and removes only the `vault_e2e` database.
+
+GitHub Actions runs these checks on pushes and pull requests, using an isolated PostgreSQL service for the e2e suite.
