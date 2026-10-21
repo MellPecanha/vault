@@ -3,6 +3,8 @@ import type { INestApplication } from '@nestjs/common';
 import { MikroORM } from '@mikro-orm/postgresql';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { vi } from 'vitest';
+import { CryptoRandomSource } from '../src/infrastructure/random/crypto-random.source';
 
 const FIRST_PLAYER_ID = '550e8400-e29b-41d4-a716-446655440000';
 const SECOND_PLAYER_ID = '5ba145c1-9341-4b6a-b32d-8327df1a3f6d';
@@ -137,6 +139,36 @@ describe('Game API (e2e)', () => {
       .set('x-anonymous-player-id', FIRST_PLAYER_ID)
       .expect(200);
     expect(history.body).toMatchObject({ pagination: { total: 1 } });
+  });
+
+  it('credits a positive prize only once when redemption requests are concurrent', async () => {
+    const random = vi.spyOn(CryptoRandomSource.prototype, 'nextSymbol').mockReturnValue('clover');
+    try {
+      const spin = await request(app.getHttpServer())
+        .post('/v1/spins')
+        .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+        .send({})
+        .expect(201);
+      expect(spin.body.result.pendingPrize).toBe(40);
+
+      const responses = await Promise.all([
+        request(app.getHttpServer())
+          .post(`/v1/results/${spin.body.result.id}/redeem`)
+          .set('x-anonymous-player-id', FIRST_PLAYER_ID),
+        request(app.getHttpServer())
+          .post(`/v1/results/${spin.body.result.id}/redeem`)
+          .set('x-anonymous-player-id', FIRST_PLAYER_ID),
+      ]);
+      expect(responses.map((response) => response.status).sort()).toEqual([200, 409]);
+      const history = await request(app.getHttpServer())
+        .get('/v1/history')
+        .set('x-anonymous-player-id', FIRST_PLAYER_ID)
+        .expect(200);
+      expect(history.body.player.coinBalance).toBe(139);
+      expect(history.body.items[0].settledAt).not.toBeNull();
+    } finally {
+      random.mockRestore();
+    }
   });
 
   it('scopes history and result mutations to the resolved player', async () => {

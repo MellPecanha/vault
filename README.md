@@ -128,4 +128,3 @@ TEST_DATABASE_URL=postgresql://vault:vault@localhost:15432/vault_e2e npm run tes
 
 This command creates and removes only the `vault_e2e` database.
 
-GitHub Actions runs these checks on pushes and pull requests, using an isolated PostgreSQL service for the e2e suite.
